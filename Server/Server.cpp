@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:45:57 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/16 02:46:32 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/16 23:49:41 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,8 @@
 
 bool	Server::Signal = false;
 
-Server::Server()
+Server::Server(int port, std::string password) : Name("Discord Mdere7"), Port(port), Password(password), SockFd(-1)
 {
-	this->SockFd = -1;
 }
 
 void	Server::SetPort(int newPort)
@@ -69,10 +68,39 @@ void	Server::Remove_Client(int rfd)
 	}
 }
 
+// void	Accept_New_Client()
+// {
+	
+// }
+
+// void	Recieve_New_Data()
+// {
+	
+// }
+
 void	Server::Server_Initialization(char **av)
 {
+	size_t	i;
+
 	this->Port = atoi(av[1]);
 	Server_Socket_Creation();
+	std::cout << "Server connected." << std::endl;
+	while (Server::Signal == false)
+	{
+		if (Server::Signal == false && poll(&this->Fds[0], this->Fds.size(), -1) == -1)
+			throw (std::runtime_error("Failed to check for event."));
+		for (i = 0; i < this->Fds.size(); i++)
+		{
+			if (this->Fds[i].revents & POLLIN)
+			{
+				// if (this->Fds[i].fd == this->SockFd)
+				// 	Accept_New_Client();
+				// else
+				// 	Recieve_New_Data();
+			}
+		}
+	}
+	this->Disconnect_Everything();
 }
 
 void	Server::Server_Socket_Creation()

@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 22:22:39 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/15 23:42:11 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/16 21:31:03 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,6 @@ int	Parse_Arguments(char **av)
 
 int	main(int ac, char **av)
 {
-	Server	server;
-
 	if (ac != 3)
 	{
 		std::cerr << "Wrong set of arguments." << std::endl << "Try './ircserv <port> <password>'" << std::endl;
@@ -42,6 +40,9 @@ int	main(int ac, char **av)
 	}
 	if (Parse_Arguments(av) == 1)
 		return (1);
+
+	Server	server(atoi(av[1]), av[2]);
+
 	try
 	{
 		signal(SIGINT, Server::Signal_Handler);
