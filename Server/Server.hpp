@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/16 23:47:09 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/19 22:47:35 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ class Server
 		void		Remove_Client(int rfd);
 		void		Server_Initialization(char **av);
 		void		Server_Socket_Creation();
-		// void		Accept_New_Client();
+		void		Accept_New_Client();
 		// void		Recieve_New_Data();
 };
 

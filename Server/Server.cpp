@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:45:57 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/16 23:49:41 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/19 22:59:15 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,10 +68,34 @@ void	Server::Remove_Client(int rfd)
 	}
 }
 
-// void	Accept_New_Client()
-// {
+void	Server::Accept_New_Client()
+{
+	struct sockaddr_in	newcliaddr;
+	struct pollfd		newpoll;
+	int					clifd;
+	socklen_t			clilen;
+	Client				newclient;
 	
-// }
+
+	std::cout << "Please enter the server password: ";
+	
+	clilen = sizeof(newcliaddr);
+	clifd = accept(this->SockFd, (struct sockaddr *)&newcliaddr, &clilen);
+	if (clifd == -1)
+		throw (std::runtime_error("Failed to accept a new client."));
+	std::cout << "Set your Nickname: ";
+	// newclient.SetNickName()
+	std::cout << "New Client Connected." << std::endl;
+	if (fcntl(clifd, F_SETFL, O_NONBLOCK) == -1)
+		throw (std::runtime_error("Failed to set the client socket to non-blocking."));
+	newpoll.fd = clifd;
+	newpoll.events = POLLIN;
+	newpoll.revents = 0;
+	this->Fds.push_back(newpoll);
+	newclient.SetFd(clifd);
+	newclient.SetIPaddr(inet_ntoa(newcliaddr.sin_addr));
+	
+}
 
 // void	Recieve_New_Data()
 // {
@@ -106,26 +130,26 @@ void	Server::Server_Initialization(char **av)
 void	Server::Server_Socket_Creation()
 {
 	struct sockaddr_in	newsockaddr;
-	struct pollfd		newPoll;
+	struct pollfd		newpoll;
 	int					optval;
 
 	this->SockFd = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->SockFd == -1)
-		throw (std::runtime_error("Couldn't create a socket for the server."));
+		throw (std::runtime_error("Failed to create a socket for the server."));
 	optval = 1;
 	if (setsockopt(this->SockFd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1)
-		throw (std::runtime_error("Couldn't set the server socket options."));
+		throw (std::runtime_error("Failed to set the server socket options."));
 	if (fcntl(this->SockFd, F_SETFL, O_NONBLOCK) == -1)
-		throw (std::runtime_error("Couldn't set the server socket to non-blocking."));
+		throw (std::runtime_error("Failed to set the server socket to non-blocking."));
 	newsockaddr.sin_family = AF_INET;
 	newsockaddr.sin_port = htons(this->Port);
 	newsockaddr.sin_addr.s_addr = INADDR_ANY;
 	if (bind(this->SockFd, (struct sockaddr *)&newsockaddr, sizeof(newsockaddr)) == -1)
-		throw (std::runtime_error("Couldn't bind the server socket to the port."));
+		throw (std::runtime_error("Failed to bind the server socket to the port."));
 	if (listen(this->SockFd, SOMAXCONN) == -1)
-		throw (std::runtime_error("Couldn't switch the server socket to a passive socket."));
-	newPoll.fd = this->SockFd;
-	newPoll.events = POLL_IN;
-	newPoll.revents = 0;
-	this->Fds.push_back(newPoll);
+		throw (std::runtime_error("Failed to switch the server socket to a passive socket."));
+	newpoll.fd = this->SockFd;
+	newpoll.events = POLLIN;
+	newpoll.revents = 0;
+	this->Fds.push_back(newpoll);
 }
