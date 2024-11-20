@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:45:57 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/19 22:59:15 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/20 02:22:16 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,58 @@ void	Server::Remove_Client(int rfd)
 	}
 }
 
+std::vector<std::string>	split_input(char *buffer, std::string delimiter)
+{
+	std::string					buf(buffer);
+	std::vector<std::string>	cmd;
+	int							start = 0;
+	int							end = 0;
+
+	while ((end = buf.find(delimiter, end)) != std::string::npos)
+	{
+		cmd.push_back(buf.substr(start, end - start));
+		start = end + delimiter.length();
+	}
+	if (start < buf.size()) {
+        cmd.push_back(buf.substr(start));
+    }
+	return (cmd);
+}
+
+// void	parse_command(std::vector<std::string> cmd)
+// {
+// 	int	i;
+// 	int	flag;
+
+// 	flag = 0;
+// 	for (i = 0; i < cmd.size(); i++)
+// 	{
+// 		if (cmd[i].find("PASS") != std::string::npos)
+		
+// 	}
+// }
+
+// int	Server::Authentication(int clifd)
+// {
+// 	char						buffer[1024];
+// 	size_t						bytes;
+// 	std::vector<std::string>	cmd;
+
+// 	memset(buffer, 0, sizeof(buffer));
+// 	bytes = recv(clifd, buffer, sizeof(buffer) - 1, 0);
+// 	if (bytes == 0)
+// 	{
+// 		std::cerr << "Client: " << clifd << "Hung up." << std::endl;
+// 		this->Remove_Client(clifd);
+// 		close(clifd);
+// 	}
+// 	else if (bytes > 0)
+// 	{
+// 		cmd = split_input(buffer, "\r\n");
+// 		parse_command(cmd);
+// 	}
+// }
+
 void	Server::Accept_New_Client()
 {
 	struct sockaddr_in	newcliaddr;
@@ -76,25 +128,21 @@ void	Server::Accept_New_Client()
 	socklen_t			clilen;
 	Client				newclient;
 	
-
-	std::cout << "Please enter the server password: ";
 	
 	clilen = sizeof(newcliaddr);
 	clifd = accept(this->SockFd, (struct sockaddr *)&newcliaddr, &clilen);
 	if (clifd == -1)
 		throw (std::runtime_error("Failed to accept a new client."));
-	std::cout << "Set your Nickname: ";
-	// newclient.SetNickName()
-	std::cout << "New Client Connected." << std::endl;
 	if (fcntl(clifd, F_SETFL, O_NONBLOCK) == -1)
 		throw (std::runtime_error("Failed to set the client socket to non-blocking."));
+	newclient.SetFd(clifd);
+	newclient.SetIPaddr(inet_ntoa(newcliaddr.sin_addr));
+	this->Clients.push_back(newclient);
 	newpoll.fd = clifd;
 	newpoll.events = POLLIN;
 	newpoll.revents = 0;
 	this->Fds.push_back(newpoll);
-	newclient.SetFd(clifd);
-	newclient.SetIPaddr(inet_ntoa(newcliaddr.sin_addr));
-	
+	std::cout << "New Client Connected." << std::endl;
 }
 
 // void	Recieve_New_Data()
@@ -117,8 +165,8 @@ void	Server::Server_Initialization(char **av)
 		{
 			if (this->Fds[i].revents & POLLIN)
 			{
-				// if (this->Fds[i].fd == this->SockFd)
-				// 	Accept_New_Client();
+				if (this->Fds[i].fd == this->SockFd)
+					Accept_New_Client();
 				// else
 				// 	Recieve_New_Data();
 			}
