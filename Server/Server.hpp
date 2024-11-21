@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/20 00:20:57 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/21 00:11:25 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@
 # include <arpa/inet.h>
 # include <sys/socket.h>
 # include <string>
+# include <utility>
+# include <sstream>
 # include "../Client/Client.hpp"
 
 class Server
@@ -46,9 +48,10 @@ class Server
 		void		Remove_Client(int rfd);
 		void		Server_Initialization(char **av);
 		void		Server_Socket_Creation();
-		int			Authentication(int clifd);
+		// int			Authentication(int clifd);
 		void		Accept_New_Client();
-		// void		Recieve_New_Data();
+		void		receive_request(int clifd);
+		Client		find_client(int clifd);
 };
 
 

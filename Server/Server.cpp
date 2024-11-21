@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:45:57 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/20 02:22:16 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/21 00:32:39 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,8 +72,8 @@ std::vector<std::string>	split_input(char *buffer, std::string delimiter)
 {
 	std::string					buf(buffer);
 	std::vector<std::string>	cmd;
-	int							start = 0;
-	int							end = 0;
+	size_t						start = 0;
+	size_t						end = 0;
 
 	while ((end = buf.find(delimiter, end)) != std::string::npos)
 	{
@@ -120,6 +120,74 @@ std::vector<std::string>	split_input(char *buffer, std::string delimiter)
 // 	}
 // }
 
+Client	Server::find_client(int clifd)
+{
+	size_t	i;
+
+	for (i = 0; i < this->Clients.size(); i++)
+	{
+		if (this->Clients[i].GetFd() == clifd)
+			return (this->Clients[i]);
+	}
+	return (Client());
+}
+
+std::pair<std::string, std::vector<std::string>	>	extract_args(std::string cmd)
+{
+	std::istringstream									ss(cmd);
+	std::string											cmdName;
+	std::string											arg;
+	std::pair<std::string, std::vector<std::string>	>	args;
+
+	ss >> cmdName;
+	args.first = cmdName;
+	while (ss >> std::ws && std::getline(ss, arg, ' '))
+	{
+		if (!arg.empty() && arg[0] == ':')
+		{
+			args.second.push_back(arg.substr(1));
+			break ;
+		}
+		args.second.push_back(arg);
+	}
+	return (args);
+}
+
+void	Server::receive_request(int clifd)
+{
+	char												buffer[1024];
+	size_t												bytes;
+	std::vector<std::string>							cmds;
+	size_t												i;
+	std::pair<std::string, std::vector<std::string>	>	args;
+
+	memset(buffer, 0, sizeof(buffer));
+	bytes = recv(clifd, buffer, sizeof(buffer) - 1, 0);
+	if (bytes == 0)
+	{
+		std::cerr << "Client: " << clifd << " Hung up." << std::endl;
+		this->Remove_Client(clifd);
+		close(clifd);
+	}
+	else if (bytes > 0)
+	{
+		// check if client is not present (find_client() return value)
+		if ((this->find_client(clifd)).GetifReg() == false)
+		{
+			cmds = split_input(buffer, "\r\n");
+			for (i = 0; i < cmds.size(); i++)
+			{
+				args = extract_args(cmds[i]);
+				std::cout << "Command: " << args.first << std::endl;
+				for (size_t j = 0; j < args.second.size(); j++)
+				{
+					std::cout << "Arg " << j + 1 << ": " << args.second[j] << std::endl;
+				}
+			}
+		}
+	}
+}
+
 void	Server::Accept_New_Client()
 {
 	struct sockaddr_in	newcliaddr;
@@ -137,6 +205,7 @@ void	Server::Accept_New_Client()
 		throw (std::runtime_error("Failed to set the client socket to non-blocking."));
 	newclient.SetFd(clifd);
 	newclient.SetIPaddr(inet_ntoa(newcliaddr.sin_addr));
+	newclient.SetifReg(false);
 	this->Clients.push_back(newclient);
 	newpoll.fd = clifd;
 	newpoll.events = POLLIN;
@@ -144,11 +213,6 @@ void	Server::Accept_New_Client()
 	this->Fds.push_back(newpoll);
 	std::cout << "New Client Connected." << std::endl;
 }
-
-// void	Recieve_New_Data()
-// {
-	
-// }
 
 void	Server::Server_Initialization(char **av)
 {
@@ -167,8 +231,8 @@ void	Server::Server_Initialization(char **av)
 			{
 				if (this->Fds[i].fd == this->SockFd)
 					Accept_New_Client();
-				// else
-				// 	Recieve_New_Data();
+				else
+					receive_request(this->Fds[i].fd);
 			}
 		}
 	}
