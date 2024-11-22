@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/21 00:11:25 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/22 00:38:52 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ class Server
 		// int			Authentication(int clifd);
 		void		Accept_New_Client();
 		void		receive_request(int clifd);
-		Client		find_client(int clifd);
+		size_t		find_client(int clifd);
 };
 
 

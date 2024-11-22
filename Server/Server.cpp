@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:45:57 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/21 00:32:39 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/22 01:47:28 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,67 +70,46 @@ void	Server::Remove_Client(int rfd)
 
 std::vector<std::string>	split_input(char *buffer, std::string delimiter)
 {
-	std::string					buf(buffer);
-	std::vector<std::string>	cmd;
-	size_t						start = 0;
-	size_t						end = 0;
+		std::string					buf(buffer);
+		std::vector<std::string>	cmd;
+		size_t						start = 0;
+		size_t						end = 0;
 
-	while ((end = buf.find(delimiter, end)) != std::string::npos)
-	{
-		cmd.push_back(buf.substr(start, end - start));
-		start = end + delimiter.length();
-	}
-	if (start < buf.size()) {
-        cmd.push_back(buf.substr(start));
-    }
+		while ((end = buf.find(delimiter, end)) != std::string::npos)
+		{
+			cmd.push_back(buf.substr(start, end - start));
+			start = end + delimiter.length();
+		}
+		if (start < buf.size()) {
+	        cmd.push_back(buf.substr(start));
+	    }
 	return (cmd);
 }
 
-// void	parse_command(std::vector<std::string> cmd)
-// {
-// 	int	i;
-// 	int	flag;
-
-// 	flag = 0;
-// 	for (i = 0; i < cmd.size(); i++)
-// 	{
-// 		if (cmd[i].find("PASS") != std::string::npos)
-		
-// 	}
-// }
-
-// int	Server::Authentication(int clifd)
-// {
-// 	char						buffer[1024];
-// 	size_t						bytes;
-// 	std::vector<std::string>	cmd;
-
-// 	memset(buffer, 0, sizeof(buffer));
-// 	bytes = recv(clifd, buffer, sizeof(buffer) - 1, 0);
-// 	if (bytes == 0)
-// 	{
-// 		std::cerr << "Client: " << clifd << "Hung up." << std::endl;
-// 		this->Remove_Client(clifd);
-// 		close(clifd);
-// 	}
-// 	else if (bytes > 0)
-// 	{
-// 		cmd = split_input(buffer, "\r\n");
-// 		parse_command(cmd);
-// 	}
-// }
-
-Client	Server::find_client(int clifd)
+size_t	Server::find_client(int clifd)
 {
 	size_t	i;
 
 	for (i = 0; i < this->Clients.size(); i++)
 	{
 		if (this->Clients[i].GetFd() == clifd)
-			return (this->Clients[i]);
+			return (i);
 	}
-	return (Client());
+	return (-1);
 }
+
+// Client	Server::find_client(int clifd)
+// {
+// 	size_t	i;
+
+// 	for (i = 0; i < this->Clients.size(); i++)
+// 	{
+// 		if (this->Clients[i].GetFd() == clifd)
+// 			return (this->Clients[i]);
+// 	}
+// 	return (Client());
+// }
+
 
 std::pair<std::string, std::vector<std::string>	>	extract_args(std::string cmd)
 {
@@ -141,8 +120,10 @@ std::pair<std::string, std::vector<std::string>	>	extract_args(std::string cmd)
 
 	ss >> cmdName;
 	args.first = cmdName;
+	// std::cout << "hna: " << args.first << std::endl;
 	while (ss >> std::ws && std::getline(ss, arg, ' '))
 	{
+		// std::cout << "lhih: " << arg << std::endl;
 		if (!arg.empty() && arg[0] == ':')
 		{
 			args.second.push_back(arg.substr(1));
@@ -155,11 +136,12 @@ std::pair<std::string, std::vector<std::string>	>	extract_args(std::string cmd)
 
 void	Server::receive_request(int clifd)
 {
-	char												buffer[1024];
+	char												buffer[6000];
 	size_t												bytes;
 	std::vector<std::string>							cmds;
-	size_t												i;
+	// size_t												i;
 	std::pair<std::string, std::vector<std::string>	>	args;
+	int													pos;
 
 	memset(buffer, 0, sizeof(buffer));
 	bytes = recv(clifd, buffer, sizeof(buffer) - 1, 0);
@@ -171,19 +153,17 @@ void	Server::receive_request(int clifd)
 	}
 	else if (bytes > 0)
 	{
-		// check if client is not present (find_client() return value)
-		if ((this->find_client(clifd)).GetifReg() == false)
+		pos = this->find_client(clifd);
+		if (pos != -1 && this->Clients[pos].GetifReg() == false)
 		{
-			cmds = split_input(buffer, "\r\n");
-			for (i = 0; i < cmds.size(); i++)
+			// cmds = split_input(buffer, "\r\n");
+			args = extract_args(buffer);
+			std::cout << "Command: " << args.first << std::endl;
+			for (size_t j = 0; j < args.second.size(); j++)
 			{
-				args = extract_args(cmds[i]);
-				std::cout << "Command: " << args.first << std::endl;
-				for (size_t j = 0; j < args.second.size(); j++)
-				{
-					std::cout << "Arg " << j + 1 << ": " << args.second[j] << std::endl;
-				}
+				std::cout << "Arg " << j + 1 << ": " << args.second[j] << std::endl;
 			}
+			std::cout << "----------------------" << std::endl;
 		}
 	}
 }
@@ -221,22 +201,34 @@ void	Server::Server_Initialization(char **av)
 	this->Port = atoi(av[1]);
 	Server_Socket_Creation();
 	std::cout << "Server connected." << std::endl;
-	while (Server::Signal == false)
+	while (1)
 	{
-		if (Server::Signal == false && poll(&this->Fds[0], this->Fds.size(), -1) == -1)
-			throw (std::runtime_error("Failed to check for event."));
-		for (i = 0; i < this->Fds.size(); i++)
+		signal(SIGINT, Server::Signal_Handler);
+		signal(SIGQUIT, Server::Signal_Handler);
+		if (Server::Signal == false)
 		{
-			if (this->Fds[i].revents & POLLIN)
+			if (Server::Signal == false && poll(&this->Fds[0], this->Fds.size(), -1) == -1)
+				throw (std::runtime_error("Failed to check for event."));
+			for (i = 0; i < this->Fds.size(); i++)
 			{
-				if (this->Fds[i].fd == this->SockFd)
-					Accept_New_Client();
-				else
-					receive_request(this->Fds[i].fd);
+				if (this->Fds[i].revents & POLLIN)
+				{
+					if (i == 0)
+						Accept_New_Client();
+					else
+					{
+						// std::cout << "hnaaa: " << Server::Signal << std::endl;
+						receive_request(this->Fds[i].fd);
+					}
+				}
 			}
 		}
+		else
+		{
+			this->Disconnect_Everything();
+			exit(1);
+		}	
 	}
-	this->Disconnect_Everything();
 }
 
 void	Server::Server_Socket_Creation()

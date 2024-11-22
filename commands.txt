@@ -1,0 +1,4 @@
+PASS mypassword
+NICK mynickname
+USER myusername 0 * :My Real Name
+
