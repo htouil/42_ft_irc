@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:45:57 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/23 01:53:06 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/24 00:04:36 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 bool	Server::Signal = false;
 
-Server::Server(int port, std::string password) : Name("Discord Mdere7"), Port(port), Password(password), SockFd(-1)
+Server::Server(int port, std::string Spassword) : Name("Discord Mdere7"), Port(port), Spassword(Spassword), SockFd(-1)
 {
 }
 
@@ -40,7 +40,7 @@ void	Server::Disconnect_Everything()
 	}
 	if (this->SockFd != -1)
 	{
-		std::cout << "Server Disconnected." << std::endl;
+		std::cout << display_current_time() + "Server Disconnected." << std::endl;
 		close(this->SockFd);
 	}
 }
@@ -86,17 +86,26 @@ std::vector<std::string>	split_input(char *buffer, std::string delimiter)
 	return (cmd);
 }
 
-size_t	Server::find_client(int clifd)
-{
-	size_t	i;
+// template<typename T>
+// size_t	Server::find_client(T to_find, std::string type)
+// {
+// 	size_t	i;
 
-	for (i = 0; i < this->Clients.size(); i++)
-	{
-		if (this->Clients[i].GetFd() == clifd)
-			return (i);
-	}
-	return (-1);
-}
+// 	for (i = 0; i < this->Clients.size(); i++)
+// 	{
+// 		if (type == "fd")
+// 		{
+// 			if (this->Clients[i].GetFd() == (to_find))
+// 				return (i);
+// 		}
+// 		if (type == "nick")
+// 		{
+// 		if (this->Clients[i].GetNickname() == (to_find))
+// 			return (i);
+// 		}
+// 	}
+// 	return (-1);
+// }
 
 std::pair<std::string, std::vector<std::string>	>	extract_args(std::string cmd)
 {
@@ -110,11 +119,11 @@ std::pair<std::string, std::vector<std::string>	>	extract_args(std::string cmd)
 	while (ss >> std::ws && std::getline(ss, arg, ' '))
 	{
 		// std::cout << "hna: \'" << arg << "\'" << std::endl;
-		if (!arg.empty() && arg[0] == ':')
-		{
-			args.second.push_back(arg.substr(1));
-			continue ;
-		}
+		// if (!arg.empty() && arg[0] == ':')
+		// {
+		// 	args.second.push_back(arg.substr(1));
+		// 	continue ;
+		// }
 		args.second.push_back(arg);
 	}
 	return (args);
@@ -149,14 +158,14 @@ void	Server::receive_request(int clifd)
 	{
 		if (buffer.empty())
 			return ;
-		pos = this->find_client(clifd);
+		pos = this->find_fd(clifd);
 		if (pos != -1 && this->Clients[pos].GetifReg() == false)
 		{
 			// cmds = split_input(tmp, "\r\n");
 			args = extract_args(buffer);
 			std::cout << "Command: " << args.first << std::endl;
 			for (size_t j = 0; j < args.second.size(); j++)
-				std::cout << "Arg " << j + 1 << ": " << args.second[j] << std::endl;
+				std::cout << "Arg " << j + 1 << ": \'" << args.second[j] << "\'"<< std::endl;
 			std::cout << "----------------------" << std::endl;
 			commands(args, this->Clients[pos]);
 		}

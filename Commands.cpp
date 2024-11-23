@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/23 01:52:36 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/23 23:30:53 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,22 +22,55 @@ std::string	remove_crln(std::string msg)
 	return (msg);
 }
 
+std::string	display_current_time()
+{
+	std::time_t			rn = std::time(0);
+	std::tm				*now = std::localtime(&rn);
+	std::ostringstream	oss;
+
+	oss << "[" << (now->tm_year + 1900) << "/" << (now->tm_mon + 1) << "/" << (now->tm_mday) << " " << (now->tm_hour) << ":" << (now->tm_min) << ":" << (now->tm_sec) << "] ";
+	return (oss.str());
+}
+
 void	display_err_msg(Client &client, std::string err_msg)
 {
-	if (send(client.GetFd(), err_msg.c_str(), err_msg.size(), 0) == -1)
+	std::string	tmp;
+
+	tmp = display_current_time() + err_msg;
+	if (send(client.GetFd(), (tmp).c_str(), tmp.size(), 0) == -1)
 		std::cerr << "Failed to send to client " << client.GetFd() << std::endl;
 }
 
-void	commands(std::pair<std::string, std::vector<std::string>	> args, Client &client)
+void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Client &client)
 {
-	std::string	pwdinput;
-
-	if (client.GetifReg() == false)
+	if (args.first == "PASS" || args.first == "pass")
 	{
-		if (args.first == "PASS" || args.first == "pass")
+		if (client.GetifReg() == true)
+			return (display_err_msg(client, ERR_ALREADYREGISTERED(client.GetNickname())));
+		if (args.second.size() < 1)
+			return (display_err_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+		if (args.second.size() > 1)
+			return (display_err_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
+		if (args.second.front() != this->Spassword)
+			return (display_err_msg(client, ERR_PASSWDMISMATCH(client.GetNickname())));
+		client.SetPassword(args.second.front());
+	}
+	else if (args.first == "NICK" || args.first == "nick")
+	{
+		if (args.second.size() < 1)
+			return (display_err_msg(client, ERR_NONICKNAMEGIVEN(client.GetNickname())));
+		if (args.second.size() > 1)
+			return (display_err_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
+		if (this->find_nickname(args.second.front()) > -1)
+			return (display_err_msg(client, ERR_NICKNAMEINUSE(client.GetNickname(), args.second.front())));
+		std::string	tmp = args.second.front();
+		if (tmp[0] == '#' || tmp[0] == '&' || tmp[0] == ':' || std::isdigit(tmp[0]))
+			return (display_err_msg(client, ERR_ERRONEUSNICKNAME(client.GetNickname(), args.second.front())));
+		size_t	i;
+		for (i = 0; i < tmp.size(); i++)
 		{
-			if (args.second.size() != 1)
-				return (display_err_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+			if (tmp[i] == ' ' || (!std::isalpha(tmp[i]) && !std::isdigit(tmp[i]) && tmp[i] != '[' && tmp[i] != ']' && tmp[i] != '{' && tmp[i] != '}' && tmp[i] != '\\' && tmp[i] != '|'))
+				return (display_err_msg(client, ERR_ERRONEUSNICKNAME(client.GetNickname(), args.second.front())));
 		}
 	}
 }

@@ -6,13 +6,13 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 23:49:35 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/23 01:44:09 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/23 16:46:40 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
-Client::Client() : Fd(-1), IPaddr(""), Nickname("*"), Username("*"), Registered(false)
+Client::Client() : Fd(-1), IPaddr(""), Cpassword(""), Nickname("*"), Username("*"), Registered(false)
 {
 }
 
@@ -44,6 +44,16 @@ std::string	Client::GetUsername()
 void	Client::SetUsername(std::string newName)
 {
 	this->Username = newName;
+}
+
+std::string	Client::GetPassword()
+{
+	return (this->Cpassword);
+}
+
+void	Client::SetPassword(std::string newPass)
+{
+	this->Cpassword = newPass;
 }
 
 std::string	Client::GetIPaddr()

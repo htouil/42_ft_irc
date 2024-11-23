@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:46:41 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/22 00:40:33 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/23 16:45:31 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ class Client
 		
 		int			Fd;
 		std::string	IPaddr;
+		std::string	Cpassword;
 		std::string	Nickname;
 		std::string	Username;
 		bool		Registered;
@@ -33,6 +34,8 @@ class Client
 		void		SetNickname(std::string newName);
 		std::string	GetUsername();
 		void		SetUsername(std::string newName);
+		std::string	GetPassword();
+		void		SetPassword(std::string newPass);
 		std::string	GetIPaddr();
 		void		SetIPaddr(std::string newIPaddr);
 		bool		GetifReg();

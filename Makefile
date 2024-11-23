@@ -6,13 +6,13 @@
 #    By: htouil <htouil@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/15 23:36:12 by htouil            #+#    #+#              #
-#    Updated: 2024/11/20 00:06:25 by htouil           ###   ########.fr        #
+#    Updated: 2024/11/23 22:44:22 by htouil           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME	= ircserv
 
-SRCS	= main.cpp Client/Client.cpp Server/Server.cpp Commands.cpp
+SRCS	= main.cpp Client/Client.cpp Server/Server.cpp Commands.cpp Helper.cpp
 
 OBJS	= ${SRCS:.cpp=.o}
 
