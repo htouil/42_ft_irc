@@ -6,13 +6,13 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 23:49:35 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/22 00:41:18 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/23 01:44:09 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
-Client::Client()
+Client::Client() : Fd(-1), IPaddr(""), Nickname("*"), Username("*"), Registered(false)
 {
 }
 

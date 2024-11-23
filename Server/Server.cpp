@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:45:57 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/22 01:47:28 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/23 01:53:06 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,19 +98,6 @@ size_t	Server::find_client(int clifd)
 	return (-1);
 }
 
-// Client	Server::find_client(int clifd)
-// {
-// 	size_t	i;
-
-// 	for (i = 0; i < this->Clients.size(); i++)
-// 	{
-// 		if (this->Clients[i].GetFd() == clifd)
-// 			return (this->Clients[i]);
-// 	}
-// 	return (Client());
-// }
-
-
 std::pair<std::string, std::vector<std::string>	>	extract_args(std::string cmd)
 {
 	std::istringstream									ss(cmd);
@@ -120,14 +107,13 @@ std::pair<std::string, std::vector<std::string>	>	extract_args(std::string cmd)
 
 	ss >> cmdName;
 	args.first = cmdName;
-	// std::cout << "hna: " << args.first << std::endl;
 	while (ss >> std::ws && std::getline(ss, arg, ' '))
 	{
-		// std::cout << "lhih: " << arg << std::endl;
+		// std::cout << "hna: \'" << arg << "\'" << std::endl;
 		if (!arg.empty() && arg[0] == ':')
 		{
 			args.second.push_back(arg.substr(1));
-			break ;
+			continue ;
 		}
 		args.second.push_back(arg);
 	}
@@ -136,15 +122,23 @@ std::pair<std::string, std::vector<std::string>	>	extract_args(std::string cmd)
 
 void	Server::receive_request(int clifd)
 {
-	char												buffer[6000];
+	char												tmp[6000];
 	size_t												bytes;
 	std::vector<std::string>							cmds;
 	// size_t												i;
 	std::pair<std::string, std::vector<std::string>	>	args;
 	int													pos;
 
-	memset(buffer, 0, sizeof(buffer));
-	bytes = recv(clifd, buffer, sizeof(buffer) - 1, 0);
+	memset(tmp, 0, sizeof(tmp));
+	bytes = recv(clifd, tmp, sizeof(tmp) - 1, 0);
+	// for (i = 0; i < buffer.size(); i++)
+	// 	std::cout << (int)buffer[i] << " , ";
+	// std::cout << std::endl << "------" << std::endl;
+	std::string	buffer(tmp);
+	buffer = remove_crln(buffer);
+	// for (i = 0; i < buffer.size(); i++)
+	// 	std::cout << (int)buffer[i] << " , ";
+	// std::cout << std::endl << "------" << std::endl;
 	if (bytes == 0)
 	{
 		std::cerr << "Client: " << clifd << " Hung up." << std::endl;
@@ -153,17 +147,18 @@ void	Server::receive_request(int clifd)
 	}
 	else if (bytes > 0)
 	{
+		if (buffer.empty())
+			return ;
 		pos = this->find_client(clifd);
 		if (pos != -1 && this->Clients[pos].GetifReg() == false)
 		{
-			// cmds = split_input(buffer, "\r\n");
+			// cmds = split_input(tmp, "\r\n");
 			args = extract_args(buffer);
 			std::cout << "Command: " << args.first << std::endl;
 			for (size_t j = 0; j < args.second.size(); j++)
-			{
 				std::cout << "Arg " << j + 1 << ": " << args.second[j] << std::endl;
-			}
 			std::cout << "----------------------" << std::endl;
+			commands(args, this->Clients[pos]);
 		}
 	}
 }
@@ -180,12 +175,17 @@ void	Server::Accept_New_Client()
 	clilen = sizeof(newcliaddr);
 	clifd = accept(this->SockFd, (struct sockaddr *)&newcliaddr, &clilen);
 	if (clifd == -1)
-		throw (std::runtime_error("Failed to accept a new client."));
+	{
+		std::cerr << "Failed to accept a new client." << std::endl;
+		return ;
+	}
 	if (fcntl(clifd, F_SETFL, O_NONBLOCK) == -1)
-		throw (std::runtime_error("Failed to set the client socket to non-blocking."));
+	{
+		std::cerr << "Failed to set the client socket to non-blocking." << std::endl;
+		return ;
+	}
 	newclient.SetFd(clifd);
 	newclient.SetIPaddr(inet_ntoa(newcliaddr.sin_addr));
-	newclient.SetifReg(false);
 	this->Clients.push_back(newclient);
 	newpoll.fd = clifd;
 	newpoll.events = POLLIN;
@@ -203,8 +203,6 @@ void	Server::Server_Initialization(char **av)
 	std::cout << "Server connected." << std::endl;
 	while (1)
 	{
-		signal(SIGINT, Server::Signal_Handler);
-		signal(SIGQUIT, Server::Signal_Handler);
 		if (Server::Signal == false)
 		{
 			if (Server::Signal == false && poll(&this->Fds[0], this->Fds.size(), -1) == -1)

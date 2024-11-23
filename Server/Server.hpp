@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/22 00:38:52 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/23 01:53:25 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,10 @@
 # include <sstream>
 # include "../Client/Client.hpp"
 
+
+# define ERR_NOTENOUGHPARAMS(nickname) (": 461 " + nickname + " :Not enough parameters.\r\n")
+# define ERR_TOOMUCHPARAMS(nickname)
+
 class Server
 {
 	private:
@@ -48,12 +52,12 @@ class Server
 		void		Remove_Client(int rfd);
 		void		Server_Initialization(char **av);
 		void		Server_Socket_Creation();
-		// int			Authentication(int clifd);
 		void		Accept_New_Client();
 		void		receive_request(int clifd);
 		size_t		find_client(int clifd);
 };
 
-
+void		commands(std::pair<std::string, std::vector<std::string>	> args, Client &client);
+std::string	remove_crln(std::string);
 
 #endif
