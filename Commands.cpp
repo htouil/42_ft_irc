@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/23 23:30:53 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/24 01:00:21 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,10 +53,12 @@ void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Cl
 			return (display_err_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
 		if (args.second.front() != this->Spassword)
 			return (display_err_msg(client, ERR_PASSWDMISMATCH(client.GetNickname())));
-		client.SetPassword(args.second.front());
+		client.SetPassword(true);
 	}
 	else if (args.first == "NICK" || args.first == "nick")
 	{
+		if (client.GetPassword() == false)
+			return (display_err_msg(client, ERR_PASSWDMISMATCH(client.GetNickname())));
 		if (args.second.size() < 1)
 			return (display_err_msg(client, ERR_NONICKNAMEGIVEN(client.GetNickname())));
 		if (args.second.size() > 1)
