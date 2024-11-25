@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/24 01:34:38 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/25 23:21:36 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,11 +77,16 @@ void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Cl
 		size_t	i;
 		for (i = 0; i < tmp.size(); i++)
 		{
-			if (tmp[i] == ' ' || (!std::isalpha(tmp[i]) && !std::isdigit(tmp[i]) && tmp[i] != '[' && tmp[i] != ']' && tmp[i] != '{' && tmp[i] != '}' && tmp[i] != '\\' && tmp[i] != '|'))
+			if (tmp[i] == ' ' || (!std::isalpha(tmp[i]) && !std::isdigit(tmp[i]) && tmp[i] != '[' && tmp[i] != ']' && tmp[i] != '{' && tmp[i] != '}' && tmp[i] != '\\' && tmp[i] != '|' && (i > 0 && tmp[i] != ':')))
 				return (display_err_msg(client, ERR_ERRONEUSNICKNAME(client.GetNickname(), args.second.front())));
 		}
 		if (client.GetifReg() == true)
 			display_err_msg(client, ":" + client.GetNickname() + " NICK " + args.second.front());
 		client.SetNickname(args.second.front());
+	}
+	else if (args.first == "USER" || args.first == "user")
+	{
+		if (client.GetPassword() == false)
+			return (display_err_msg(client, ERR_PASSWDMISMATCH(client.GetNickname())));
 	}
 }
