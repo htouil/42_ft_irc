@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/24 01:21:23 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/25 15:58:50 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ class Server
 		void		receive_request(int clifd);
 		int			find_fd(int to_find);
 		int			find_nickname(std::string to_find);
-		void		commands(std::pair<std::string, std::vector<std::string>	> args, Client &client);
+		void		commands(std::pair<std::string, std::vector<std::string> > args, Client &client);
 };
 
 std::string	remove_crln(std::string);

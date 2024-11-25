@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:45:57 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/24 01:57:26 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/25 16:51:50 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,22 +116,18 @@ std::pair<std::string, std::vector<std::string>	>	extract_args(std::string cmd)
 
 	ss >> cmdName;
 	args.first = cmdName;
-	while (ss >> std::ws && std::getline(ss, arg, ' '))
+	while (ss >> std::ws)
 	{
 		// std::cout << "hna: \'" << arg << "\'" << std::endl;
-		if (!ss.str().empty() && ss.str()[0] == ':')
+		if (ss.peek() == ':')
 		{
-			args.second.push_back(arg.substr(1));
+			// ss.get();
+			if (std::getline(ss, arg))
+				args.second.push_back(arg);
 			break ;
 		}
-		// if (!arg.empty() && arg[0] == ':')
-		// {
-		// 	// std::string	tmp;
-		// 	// std::getline(ss, tmp, '\0');
-		// 	// arg.append(tmp);
-		// 	continue ;
-		// }
-		args.second.push_back(arg);
+		if (std::getline(ss, arg, ' '))
+			args.second.push_back(arg);
 	}
 	return (args);
 }
