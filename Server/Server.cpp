@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:45:57 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/25 16:51:50 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/28 23:41:42 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void	Server::Disconnect_Everything()
 
 	for (i = 0; i < this->Clients.size(); i++)
 	{
-		std::cout << "Client " << this->Clients[i].GetFd() << " Disconnected." << std::endl;
+		std::cout << display_current_time() << " Client " << this->Clients[i].GetFd() << " Disconnected." << std::endl;
 		close(this->Clients[i].GetFd());
 	}
 	if (this->SockFd != -1)
@@ -153,7 +153,7 @@ void	Server::receive_request(int clifd)
 	// std::cout << std::endl << "------" << std::endl;
 	if (bytes == 0)
 	{
-		std::cerr << "Client: " << clifd << " Hung up." << std::endl;
+		std::cerr << display_current_time() << " Client: " << clifd << " Hung up." << std::endl;
 		this->Remove_Client(clifd);
 		close(clifd);
 	}
@@ -203,7 +203,7 @@ void	Server::Accept_New_Client()
 	newpoll.events = POLLIN;
 	newpoll.revents = 0;
 	this->Fds.push_back(newpoll);
-	std::cout << "New Client Connected." << std::endl;
+	std::cout << display_current_time() << " New Client Connected." << std::endl;
 }
 
 void	Server::Server_Initialization(char **av)
@@ -212,7 +212,7 @@ void	Server::Server_Initialization(char **av)
 
 	this->Port = atoi(av[1]);
 	Server_Socket_Creation();
-	std::cout << "Server connected." << std::endl;
+	std::cout << display_current_time() << " Server connected." << std::endl;
 	while (1)
 	{
 		if (Server::Signal == false)
@@ -229,6 +229,11 @@ void	Server::Server_Initialization(char **av)
 					{
 						// std::cout << "hnaaa: " << Server::Signal << std::endl;
 						receive_request(this->Fds[i].fd);
+						std::cout << "nickname: " << this->Clients[0].GetNickname() << std::endl;
+						std::cout << "username: " << this->Clients[0].GetUsername() << std::endl;
+						std::cout << "realname: " << this->Clients[0].GetRealname() << std::endl;
+						std::cout << "password: " << this->Clients[0].GetPassword() << std::endl;
+						std::cout << "registered: " << this->Clients[0].GetifReg() << std::endl;
 					}
 				}
 			}
