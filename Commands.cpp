@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
+/*   By: calmouht <calmouht@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/28 01:50:22 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/28 04:04:47 by calmouht         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,8 +129,27 @@ void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Cl
 		}
 		else if (args.first == "HELP" || args.first == "help")
 		{
-			
+			if (args.second.size() > 0)
+				return (display_err_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
+			std::string	tmp = display_current_time() + "Commands available:\n"
+				"PASS <password> to connect with the server\n"
+				"NICK <nickname> to set your nickname\n"
+				"USER <username> 0 * :<realname> to set your username and realname\n"
+				"QUIT to disconnect from the server\n"
+				"HELP to display this help message\n";
 		}
-		
+		else if (args.first == "JOIN" || args.first == "join")
+		{
+			if (args.second.size() < 1)
+				return (display_err_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+			if (args.second.size() > 1)
+				return (display_err_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
+			if (args.second.front()[0] != '#' && args.second.front()[0] != '&')
+				return (display_err_msg(client, ERR_NOSUCHCHANNEL(client.GetNickname(), args.second.front())));
+			display_err_msg(client, ":" + client.GetNickname() + " JOIN " + args.second.front());
+		// to be continued
+		}
+		else
+			display_err_msg(client, ":Discord Mdere7 421 " + client.GetNickname() + " :Unknown command.\r\n");
 	}
 }

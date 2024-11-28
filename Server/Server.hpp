@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
+/*   By: calmouht <calmouht@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/25 23:16:22 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/28 04:00:53 by calmouht         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,13 +34,13 @@
 //server messages:
 # define USERLEN 10
 # define ERR_NOTENOUGHPARAMS(nickname) (":Discord Mdere7 461 " + nickname + " :Not enough parameters.\r\n")
-# define ERR_TOOMANYPARAMS(nickname) (":Discord Mdere7 1001" + nickname + " :Too many parameters.\r\n")
+# define ERR_TOOMANYPARAMS(nickname) (":Discord Mdere7 1001 " + nickname + " :Too many parameters.\r\n")
 # define ERR_PASSWDMISMATCH(nickname) (":Discord Mdere7 464 " + nickname + " :Password incorrect.\r\n")
 # define ERR_ALREADYREGISTERED(nickname) (":Discord Mdere7 461 " + nickname + " :You may not reregister.\r\n")
 # define ERR_NONICKNAMEGIVEN(nickname) ("Discord Mdere7 431 " + nickname + " :No nickname given.\r\n")
 # define ERR_NICKNAMEINUSE(oldnick, newnick) ("Discord Mdere7 433 " + oldnick + " " + newnick + " :Nickname already in use.\r\n")
 # define ERR_ERRONEUSNICKNAME(oldnick, newnick) ("Discord Mdere7 432 " + oldnick + " " + newnick + " :Erroneus nickname.\r\n")
-
+# define ERR_NOSUCHCHANNEL(nickname, channel) (":Discord Mdere7 403 " + nickname + " " + channel + " :No such channel.\r\n")
 
 
 
