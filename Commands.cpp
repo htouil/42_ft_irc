@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/25 23:21:36 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/28 01:50:22 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,44 +49,88 @@ void	display_err_msg(Client &client, std::string err_msg)
 
 void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Client &client)
 {
-	if (args.first == "PASS" || args.first == "pass")
+	if (client.GetifReg() == false)
 	{
-		if (client.GetifReg() == true)
-			return (display_err_msg(client, ERR_ALREADYREGISTERED(client.GetNickname())));
-		if (args.second.size() < 1)
-			return (display_err_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
-		if (args.second.size() > 1)
-			return (display_err_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
-		if (args.second.front() != this->Spassword)
-			return (display_err_msg(client, ERR_PASSWDMISMATCH(client.GetNickname())));
-		client.SetPassword(true);
-	}
-	else if (args.first == "NICK" || args.first == "nick")
-	{
-		if (client.GetPassword() == false)
-			return (display_err_msg(client, ERR_PASSWDMISMATCH(client.GetNickname())));
-		if (args.second.size() < 1)
-			return (display_err_msg(client, ERR_NONICKNAMEGIVEN(client.GetNickname())));
-		if (args.second.size() > 1)
-			return (display_err_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
-		if (this->find_nickname(args.second.front()) > -1)
-			return (display_err_msg(client, ERR_NICKNAMEINUSE(client.GetNickname(), args.second.front())));
-		std::string	tmp = args.second.front();
-		if (tmp[0] == '#' || tmp[0] == '&' || tmp[0] == ':' || std::isdigit(tmp[0]))
-			return (display_err_msg(client, ERR_ERRONEUSNICKNAME(client.GetNickname(), args.second.front())));
-		size_t	i;
-		for (i = 0; i < tmp.size(); i++)
+		if (args.first == "PASS" || args.first == "pass")
 		{
-			if (tmp[i] == ' ' || (!std::isalpha(tmp[i]) && !std::isdigit(tmp[i]) && tmp[i] != '[' && tmp[i] != ']' && tmp[i] != '{' && tmp[i] != '}' && tmp[i] != '\\' && tmp[i] != '|' && (i > 0 && tmp[i] != ':')))
-				return (display_err_msg(client, ERR_ERRONEUSNICKNAME(client.GetNickname(), args.second.front())));
+			if (client.GetifReg() == true)
+				return (display_err_msg(client, ERR_ALREADYREGISTERED(client.GetNickname())));
+			if (client.GetPassword() == true)
+				return ;
+			if (args.second.size() < 1)
+				return (display_err_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+			if (args.second.size() > 1)
+				return (display_err_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
+			if (args.second.front() != this->Spassword)
+				return (display_err_msg(client, ERR_PASSWDMISMATCH(client.GetNickname())));
+			client.SetPassword(true);
 		}
-		if (client.GetifReg() == true)
-			display_err_msg(client, ":" + client.GetNickname() + " NICK " + args.second.front());
-		client.SetNickname(args.second.front());
-	}
-	else if (args.first == "USER" || args.first == "user")
-	{
-		if (client.GetPassword() == false)
-			return (display_err_msg(client, ERR_PASSWDMISMATCH(client.GetNickname())));
+		else if (args.first == "NICK" || args.first == "nick")
+		{
+			if (client.GetPassword() == false)
+				return (display_err_msg(client, ERR_PASSWDMISMATCH(client.GetNickname())));
+			if (args.second.size() < 1)
+				return (display_err_msg(client, ERR_NONICKNAMEGIVEN(client.GetNickname())));
+			if (args.second.size() > 1)
+				return (display_err_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
+			if (this->find_nickname(args.second.front()) > -1)
+				return (display_err_msg(client, ERR_NICKNAMEINUSE(client.GetNickname(), args.second.front())));
+			std::string	tmp = args.second.front();
+			if (tmp[0] == '#' || tmp[0] == '&' || tmp[0] == ':' || std::isdigit(tmp[0]))
+				return (display_err_msg(client, ERR_ERRONEUSNICKNAME(client.GetNickname(), args.second.front())));
+			size_t	i;
+			for (i = 0; i < tmp.size(); i++)
+			{
+				if (tmp[i] == ' ' || (!std::isalpha(tmp[i]) && !std::isdigit(tmp[i]) && tmp[i] != '[' && tmp[i] != ']' && tmp[i] != '{' && tmp[i] != '}' && tmp[i] != '\\' && tmp[i] != '|' && (i > 0 && tmp[i] != ':')))
+					return (display_err_msg(client, ERR_ERRONEUSNICKNAME(client.GetNickname(), args.second.front())));
+			}
+			if (client.GetifReg() == true)
+				display_err_msg(client, ":" + client.GetNickname() + " NICK " + args.second.front());
+			client.SetNickname(args.second.front());
+		}
+		else if (args.first == "USER" || args.first == "user")
+		{
+			if (client.GetifReg() == true)
+				return (display_err_msg(client, ERR_ALREADYREGISTERED(client.GetNickname())));
+			if (client.GetPassword() == false)
+				return (display_err_msg(client, ERR_PASSWDMISMATCH(client.GetNickname())));
+			if (args.second.size() < 4)
+				return (display_err_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+			if (args.second.size() > 4)
+				return (display_err_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
+			if (args.second[1] != "0" || args.second[2] != "*")
+				return (display_err_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+			if (args.second[0].size() > 10)
+				client.SetUsername(args.second[0].substr(0, 10));
+			client.SetUsername(args.second[0]);
+			if (args.second[3][0] != ':' || !std::isalpha(args.second[3][1]))
+				return (display_err_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+			std::string	tmp = args.second[3];
+			size_t	i;
+			for (i = 1; i < tmp.size(); i++)
+			{
+				if (!std::isalpha(tmp[i]) && tmp[i] != ' ') 
+					return (display_err_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+			}
+			size_t pos;
+			pos = args.second[3].find_last_not_of(" ");
+			if (pos != std::string::npos)
+				args.second[3].erase(pos + 1);
+			client.SetRealname(args.second[3].substr(1));
+			// std::cout << "Realname: \'" << client.GetRealname() << "\'" << std::endl;
+		}
+		else if (args.first == "QUIT" || args.first == "quit")
+		{
+			if (args.second.size() > 0)
+				return (display_err_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
+			std::cerr << "Client: " << client.GetFd() << " Hung up." << std::endl;
+			this->Remove_Client(client.GetFd());
+			close(client.GetFd());
+		}
+		else if (args.first == "HELP" || args.first == "help")
+		{
+			
+		}
+		
 	}
 }
