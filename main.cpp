@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 22:22:39 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/23 16:43:37 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/03 01:17:34 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,6 @@ int	main(int ac, char **av)
 		return (1);
 
 	Server	server(atoi(av[1]), av[2]);
-
 	try
 	{
 		signal(SIGINT, Server::Signal_Handler);

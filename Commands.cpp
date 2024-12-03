@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/28 23:44:54 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/03 23:56:38 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,23 +136,23 @@ void	Server::help(Client &client)
 		<< "===========================" << std::endl
 		<< std::endl << "COMMANDS:" << std::endl
 		<< std::endl << "1. " << "PASS:" << std::endl
-		<< "- Description: Sets the password for connecting to the server." << std::endl
-		<< "-Usage: PASS <password>" << std::endl
-		<< "- Note: Must be the first command sent by the client before any other command." << std::endl
+		<< "  - Description: Sets the password for connecting to the server." << std::endl
+		<< "  - Usage: PASS <password>" << std::endl
+		<< "  - Note: Must be the first command sent by the client before any other command." << std::endl
 		<< std::endl << "2. " << "NICK:" << std::endl
-		<< "- Description: Sets or changes your nickname." << std::endl
-		<< "- Usage: NICK <nickname>" << std::endl
-		<< "- Note: Nicknames must be unique and cannot contain spaces." << std::endl
+		<< "  - Description: Sets or changes your nickname." << std::endl
+		<< "  - Usage: NICK <nickname>" << std::endl
+		<< "  - Note: Nicknames must be unique and cannot contain spaces." << std::endl
 		<< std::endl << "3. " << "USER:" << std::endl
-		<< "- Description: Sets your username and real name." << std::endl
-		<< "- Usage: USER <username> 0 * :<realname>" << std::endl
+		<< "  - Description: Sets your username and real name." << std::endl
+		<< "  - Usage: USER <username> 0 * :<realname>" << std::endl
 		<< std::endl << "4. " << "QUIT:" << std::endl
-		<< "- Description: Disconnects from the server with an optional farewell message." << std::endl
-		<< "- Usage: QUIT :<message>" << std::endl
-		<< "- Note: If no message is provided, a default quit message will be sent." << std::endl
+		<< "  - Description: Disconnects from the server with an optional farewell message." << std::endl
+		<< "  - Usage: QUIT :<message>" << std::endl
+		<< "  - Note: If no message is provided, a default quit message will be sent." << std::endl
 		<< std::endl << "5. " << "HELP:" << std::endl
-		<< "- Description: Displays this help guide." << std::endl
-		<< "- Usage: HELP" << std::endl
+		<< "  - Description: Displays this help guide." << std::endl
+		<< "  - Usage: HELP" << std::endl
 		<< std::endl 
 		<< "===========================" << std::endl
 		<< "        END OF GUIDE       " << std::endl
@@ -160,28 +160,53 @@ void	Server::help(Client &client)
 	send_server_msg(client, oss.str());
 }
 
+// void	Server::join_help()
+
+void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client &client)
+{
+	size_t	i;
+	size_t	j;
+
+	if (client.GetifReg() == false)
+		return (send_server_msg(client, ERR_NOTREGISTERED(client.GetNickname())));
+	if (args.second.empty())
+		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+	if (args.second.size() == 1 && args.second.front() == "0")
+	{
+		for (i = 0; i < this->Channels.size(); i++)
+		{
+			std::vector<int>	Cmembers = this->Channels[i].GetMemberlist();
+			for (j = 0; j < Cmembers.size(); j++)
+			{
+				if (client.GetFd() == Cmembers[j])
+					Cmembers.erase(Cmembers.begin() + j);
+			}
+		}
+		return ;
+	}
+	for (i = 0; i < args.second.size(); i++)
+	{
+		// parsing JOIN args here
+	}
+}
+
 void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Client &client)
 {
-	if (client.GetifReg() == false)
+	if (args.first == "PASS" || args.first == "pass")
+		pass(args, client);
+	else if (args.first == "NICK" || args.first == "nick")
+		nick(args, client);
+	else if (args.first == "USER" || args.first == "user")
+		user(args, client);
+	else if (args.first == "QUIT" || args.first == "quit")
+		quit(args, client);
+	else if (args.first == "HELP" || args.first == "help")
+		help(client);
+	else if (args.first == "JOIN" || args.first == "join")
+		join(args, client);
+	if (client.GetifReg() == false && client.GetPassword() == true && client.GetNickname() != "*" && client.GetUsername() != "*" && client.GetRealname() != "*")
 	{
-		if (args.first == "PASS" || args.first == "pass")
-			pass(args, client);
-		else if (args.first == "NICK" || args.first == "nick")
-			nick(args, client);
-		else if (args.first == "USER" || args.first == "user")
-			user(args, client);
-		else if (args.first == "QUIT" || args.first == "quit")
-			quit(args, client);
-		else if (args.first == "HELP" || args.first == "help")
-			help(client);
-		if (client.GetPassword() == true && client.GetNickname() != "*" && client.GetUsername() != "*" && client.GetRealname() != "*")
-		{
-			client.SetifReg(true);
-			send_server_msg(client, RPL_WELCOME(client.GetNickname(), client.GetUsername(), client.GetIPaddr()));
-		}
-	}
-	else if (client.GetifReg() == true)
-	{
-		
+		client.SetifReg(true);
+		return (send_server_msg(client, RPL_WELCOME(client.GetNickname(), client.GetUsername(), client.GetIPaddr())));
 	}
 }

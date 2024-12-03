@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:45:57 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/28 23:41:42 by htouil           ###   ########.fr       */
+/*   Updated: 2024/11/30 19:32:37 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void	Server::Disconnect_Everything()
 
 	for (i = 0; i < this->Clients.size(); i++)
 	{
-		std::cout << display_current_time() << " Client " << this->Clients[i].GetFd() << " Disconnected." << std::endl;
+		std::cout << display_current_time() << " Client " << this->Clients[i].GetFd() << " (" << this->Clients[i].GetNickname() << ") Disconnected." << std::endl;
 		close(this->Clients[i].GetFd());
 	}
 	if (this->SockFd != -1)
@@ -143,8 +143,8 @@ void	Server::receive_request(int clifd)
 
 	memset(tmp, 0, sizeof(tmp));
 	bytes = recv(clifd, tmp, sizeof(tmp) - 1, 0);
-	// for (i = 0; i < buffer.size(); i++)
-	// 	std::cout << (int)buffer[i] << " , ";
+	// for (i = 0; i < std::strlen(tmp); i++)
+	// 	std::cout << (int)tmp[i] << " , ";
 	// std::cout << std::endl << "------" << std::endl;
 	std::string	buffer(tmp);
 	buffer = remove_crln(buffer);
@@ -153,7 +153,7 @@ void	Server::receive_request(int clifd)
 	// std::cout << std::endl << "------" << std::endl;
 	if (bytes == 0)
 	{
-		std::cerr << display_current_time() << " Client: " << clifd << " Hung up." << std::endl;
+		std::cerr << display_current_time() << " Client: " << clifd << " (" << this->Clients[this->find_fd(clifd)].GetNickname() << ") Hung up." << std::endl;
 		this->Remove_Client(clifd);
 		close(clifd);
 	}
@@ -162,13 +162,23 @@ void	Server::receive_request(int clifd)
 		if (buffer.empty())
 			return ;
 		pos = this->find_fd(clifd);
-		if (pos != -1 && this->Clients[pos].GetifReg() == false)
+		if (pos != -1) // && this->Clients[pos].GetifReg() == false
 		{
 			// cmds = split_input(tmp, "\r\n");
 			args = extract_args(buffer);
 			std::cout << "Command: " << args.first << std::endl;
 			for (size_t j = 0; j < args.second.size(); j++)
+			{
+				// std::cout << "CLIENT " << j + 1 << std::endl;
+				// std::cout << "fd: " << this->Clients[j].GetFd() << std::endl;
+				// std::cout << "IPaddr: " << this->Clients[j].GetIPaddr() << std::endl;
+				// std::cout << "nickname: " << this->Clients[j].GetNickname() << std::endl;
+				// std::cout << "username: " << this->Clients[j].GetUsername() << std::endl;
+				// std::cout << "realname: " << this->Clients[j].GetRealname() << std::endl;
+				// std::cout << "password: " << this->Clients[j].GetPassword() << std::endl;
+				// std::cout << "registered: " << this->Clients[j].GetifReg() << std::endl;
 				std::cout << "Arg " << j + 1 << ": \'" << args.second[j] << "\'"<< std::endl;
+			}
 			std::cout << "----------------------" << std::endl;
 			commands(args, this->Clients[pos]);
 		}
@@ -226,15 +236,7 @@ void	Server::Server_Initialization(char **av)
 					if (i == 0)
 						Accept_New_Client();
 					else
-					{
-						// std::cout << "hnaaa: " << Server::Signal << std::endl;
 						receive_request(this->Fds[i].fd);
-						std::cout << "nickname: " << this->Clients[0].GetNickname() << std::endl;
-						std::cout << "username: " << this->Clients[0].GetUsername() << std::endl;
-						std::cout << "realname: " << this->Clients[0].GetRealname() << std::endl;
-						std::cout << "password: " << this->Clients[0].GetPassword() << std::endl;
-						std::cout << "registered: " << this->Clients[0].GetifReg() << std::endl;
-					}
 				}
 			}
 		}

@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/28 22:58:25 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/03 23:00:16 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,38 +30,15 @@
 # include <ctime>
 # include <iomanip>
 # include "../Client/Client.hpp"
-
-# define RESET       "\033[0m"
-# define RED         "\033[31m"
-# define GREEN       "\033[32m"
-# define YELLOW      "\033[33m"
-# define BLUE        "\033[34m"
-# define MAGENTA     "\033[35m"
-# define CYAN        "\033[36m"
-# define GREY        "\033[90m"
-# define WHITE       "\033[37m"
-# define GOLD        "\033[38;5;178m"
-# define ORANGE      "\033[38;5;202m"
-# define PINK        "\033[38;5;206m"
-# define PURPLE      "\033[38;5;141m"
-# define BROWN       "\033[38;5;94m"
-# define BEIGE       "\033[38;5;224m"
-# define OLIVE_GREEN "\033[38;5;58m"
-# define TEAL        "\033[38;5;30m"
-# define AQUA        "\033[38;5;51m"
-# define MAROON      "\033[38;5;52m"
-# define CRIMSON     "\033[38;5;160m"
-# define CORAL       "\033[38;5;203m"
-# define SALMON      "\033[38;5;209m"
-# define TURQUOISE   "\033[38;5;45m"
-# define INDIGO      "\033[38;5;54m"
+# include "../Channel/Channel.hpp"
 
 //server messages:
 # define USERLEN 10
 # define ERR_NOTENOUGHPARAMS(nickname) (":Discord Mdere7 461 " + nickname + " :Not enough parameters.\r\n")
 # define ERR_TOOMANYPARAMS(nickname) (":Discord Mdere7 1001" + nickname + " :Too many parameters.\r\n")
 # define ERR_PASSWDMISMATCH(nickname) (":Discord Mdere7 464 " + nickname + " :Password incorrect.\r\n")
-# define ERR_ALREADYREGISTERED(nickname) (":Discord Mdere7 461 " + nickname + " :You may not reregister.\r\n")
+# define ERR_NOTREGISTERED(nickname) (":Discord Mdere7 451 " + nickname + " :You have not registered.\r\n")
+# define ERR_ALREADYREGISTERED(nickname) (":Discord Mdere7 462 " + nickname + " :You may not reregister.\r\n")
 # define ERR_NONICKNAMEGIVEN(nickname) ("Discord Mdere7 431 " + nickname + " :No nickname given.\r\n")
 # define ERR_NICKNAMEINUSE(oldnick, newnick) ("Discord Mdere7 433 " + oldnick + " " + newnick + " :Nickname already in use.\r\n")
 # define ERR_ERRONEUSNICKNAME(oldnick, newnick) ("Discord Mdere7 432 " + oldnick + " " + newnick + " :Erroneus nickname.\r\n")
@@ -84,6 +61,7 @@ class Server
 		static bool					Signal;
 		std::vector<Client>			Clients;
 		std::vector<struct pollfd>	Fds;
+		std::vector<Channel>		Channels;
 
 	public:
 					Server(int port, std::string Spassword);
@@ -102,10 +80,11 @@ class Server
 		void		user(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		quit(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		help(Client &client);
+		void		join(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		commands(std::pair<std::string, std::vector<std::string> > args, Client &client);
 };
 
-std::string	remove_crln(std::string);
+std::string	remove_crln(std::string msg);
 std::string	display_current_time();
 
 #endif
