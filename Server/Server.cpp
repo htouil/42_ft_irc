@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:45:57 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/30 19:32:37 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/05 22:43:48 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,24 +66,6 @@ void	Server::Remove_Client(int rfd)
 			break ;
 		}
 	}
-}
-
-std::vector<std::string>	split_input(char *buffer, std::string delimiter)
-{
-		std::string					buf(buffer);
-		std::vector<std::string>	cmd;
-		size_t						start = 0;
-		size_t						end = 0;
-
-		while ((end = buf.find(delimiter, end)) != std::string::npos)
-		{
-			cmd.push_back(buf.substr(start, end - start));
-			start = end + delimiter.length();
-		}
-		if (start < buf.size()) {
-	        cmd.push_back(buf.substr(start));
-	    }
-	return (cmd);
 }
 
 // template<typename T>
@@ -153,7 +135,7 @@ void	Server::receive_request(int clifd)
 	// std::cout << std::endl << "------" << std::endl;
 	if (bytes == 0)
 	{
-		std::cerr << display_current_time() << " Client: " << clifd << " (" << this->Clients[this->find_fd(clifd)].GetNickname() << ") Hung up." << std::endl;
+		std::cerr << display_current_time() << " Client: " << clifd << " (" << this->Clients[this->find_fd(clifd, this->Clients)].GetNickname() << ") Hung up." << std::endl;
 		this->Remove_Client(clifd);
 		close(clifd);
 	}
@@ -161,7 +143,7 @@ void	Server::receive_request(int clifd)
 	{
 		if (buffer.empty())
 			return ;
-		pos = this->find_fd(clifd);
+		pos = this->find_fd(clifd, this->Clients);
 		if (pos != -1) // && this->Clients[pos].GetifReg() == false
 		{
 			// cmds = split_input(tmp, "\r\n");

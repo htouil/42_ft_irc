@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/03 23:56:38 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/05 23:55:41 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,9 +70,9 @@ void	Server::nick(std::pair<std::string, std::vector<std::string> > args, Client
 		return (send_server_msg(client, ERR_NONICKNAMEGIVEN(client.GetNickname())));
 	if (args.second.size() > 1)
 		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
-	if (this->find_nickname(args.second.front()) > -1)
-		return (send_server_msg(client, ERR_NICKNAMEINUSE(client.GetNickname(), args.second.front())));
 	std::string	tmp = args.second.front();
+	if (this->find_nickname(tmp, this->Clients) > -1)
+		return (send_server_msg(client, ERR_NICKNAMEINUSE(client.GetNickname(), tmp)));
 	if (tmp[0] == '#' || tmp[0] == '&' || tmp[0] == ':' || std::isdigit(tmp[0]))
 		return (send_server_msg(client, ERR_ERRONEUSNICKNAME(client.GetNickname(), args.second.front())));
 	size_t	i;
@@ -164,29 +164,58 @@ void	Server::help(Client &client)
 
 void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client &client)
 {
-	size_t	i;
-	size_t	j;
+	size_t						i;
+	size_t						j;
+	std::vector<std::string>	chans;
+	std::vector<std::string>	keys;
 
 	if (client.GetifReg() == false)
 		return (send_server_msg(client, ERR_NOTREGISTERED(client.GetNickname())));
 	if (args.second.empty())
 		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+	if (args.second.size() > 2)
+		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
 	if (args.second.size() == 1 && args.second.front() == "0")
 	{
 		for (i = 0; i < this->Channels.size(); i++)
 		{
-			std::vector<int>	Cmembers = this->Channels[i].GetMemberlist();
+			std::vector<Client>	Cmembers = this->Channels[i].GetMemberlist();
 			for (j = 0; j < Cmembers.size(); j++)
 			{
-				if (client.GetFd() == Cmembers[j])
+				if (client.GetFd() == Cmembers[j].GetFd())
 					Cmembers.erase(Cmembers.begin() + j);
 			}
 		}
 		return ;
 	}
-	for (i = 0; i < args.second.size(); i++)
+	if (args.second.size() == 2
+		&& (std::count(args.second[0].begin(), args.second[0].end(), ',') != std::count(args.second[1].begin(), args.second[1].end(), ',')))
+		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+	chans = split_input(args.second[0], ",");
+	keys = split_input(args.second[1], ",");
+	// std::cout << "size: " << chans.size() << std::endl;
+	// for (i = 0; i < chans.size(); i++)
+	// 	std::cout << "- \'" << chans[i] << "\'" << std::endl;
+	// std::cout << "size: " << keys.size() << std::endl;
+	// for (i = 0; i < keys.size(); i++)
+	// 	std::cout << "- \'" << keys[i] << "\'" << std::endl;
+	for (i = 0; i < chans.size(); i++)
 	{
-		// parsing JOIN args here
+		for (j = 0; j < this->Channels.size(); j++)
+		{
+			if (chans[i] == this->Channels[j].GetName())
+			{
+				if (this->find_fd(client.GetFd(), this->Channels[j].GetBannedlist()) > -1)
+					return (send_server_msg(client, ERR_BANNEDFROMCHAN(client.GetNickname(), chans[i])));
+				if (this->Channels[j].Getifinvonly() == true)
+					return (send_server_msg(client, ERR_INVITEONLYCHAN(client.GetNickname(), chans[i])));
+				// check key to access the channel
+			}
+			else
+			{
+				
+			}
+		}
 	}
 }
 
