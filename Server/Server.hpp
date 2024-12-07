@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/05 23:29:30 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/07 15:36:32 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,11 +46,11 @@
 # define ERR_ERRONEUSNICKNAME(oldnick, newnick) ("Discord Mdere7 432 " + oldnick + " " + newnick + " :Erroneus nickname.\r\n")
 # define ERR_BANNEDFROMCHAN(nickname, channel) (":Discord Mdere7 474 " + nickname + " " + channel + " :Cannot join channel (+b).\r\n")
 # define ERR_INVITEONLYCHAN(nickname, channel) (":Discord Mdere7 473 " + nickname + " " + channel + " :Cannot join channel (+i).\r\n")
-
-
-
-
-
+# define ERR_BADCHANNELKEY(nickname, channel) (":Discord Mdere7 475 " + nickname + " " + channel + " :Cannot join channel (+k).\r\n")
+# define ERR_BADCHANMASK(nickname, channel) (":Discord Mdere7 475 " + nickname + " " + channel + " :Invalid channel name.\r\n")
+# define ERR_CHANNELISFULL(nickname, channel) (":Discord Mdere7 471 " + nickname + " " + channel + " :Cannot join channel (+l).\r\n")
+# define RPL_TOPIC(nickname, channel, topic) (":Discord Mdere7 332 " + nickname + " " + channel + " :" + topic + "\r\n")
+# define RPL_NAMREPLY(nickname, channel) (":Discord Mdere7 353 " + nickname + " = " + channel + " :")
 
 class Server
 {

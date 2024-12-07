@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/05 23:55:41 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/07 15:37:46 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,8 +188,10 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 		}
 		return ;
 	}
-	if (args.second.size() == 2
-		&& (std::count(args.second[0].begin(), args.second[0].end(), ',') != std::count(args.second[1].begin(), args.second[1].end(), ',')))
+	int	x,y;
+	x = std::count(args.second[0].begin(), args.second[0].end(), ',');
+	y = std::count(args.second[1].begin(), args.second[1].end(), ',');
+	if (args.second.size() == 2 && ((args.second[0].size() != x) || (x != y)))
 		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
 	chans = split_input(args.second[0], ",");
 	keys = split_input(args.second[1], ",");
@@ -199,8 +201,12 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 	// std::cout << "size: " << keys.size() << std::endl;
 	// for (i = 0; i < keys.size(); i++)
 	// 	std::cout << "- \'" << keys[i] << "\'" << std::endl;
+	// Channel	chh("#ch", "key");
+	// this->Channels.push_back(chh);
 	for (i = 0; i < chans.size(); i++)
 	{
+		if (chans[i][0] != '#' || std::count(chans[i].begin(), chans[i].end(), ' ') || std::count(chans[i].begin(), chans[i].end(), ','))
+			return (send_server_msg(client, ERR_BADCHANMASK(client.GetNickname(), chans[i])));
 		for (j = 0; j < this->Channels.size(); j++)
 		{
 			if (chans[i] == this->Channels[j].GetName())
@@ -209,11 +215,34 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 					return (send_server_msg(client, ERR_BANNEDFROMCHAN(client.GetNickname(), chans[i])));
 				if (this->Channels[j].Getifinvonly() == true)
 					return (send_server_msg(client, ERR_INVITEONLYCHAN(client.GetNickname(), chans[i])));
-				// check key to access the channel
+				if (this->Channels[j].GetKey() != "" && keys[i] != this->Channels[j].GetKey())
+					return (send_server_msg(client, ERR_BADCHANNELKEY(client.GetNickname(), chans[i])));
+				std::vector<Client> ch;
+				ch = this->Channels[j].GetMemberlist();
+				if (ch.size() == this->Channels[j].GetLimit())
+					return (send_server_msg(client, ERR_CHANNELISFULL(client.GetNickname(), chans[i])));
+				ch.push_back(client);
+				std::cout << "size: " << ch.size() << std::endl;
+				size_t	k;
+				for (k = 0; k < ch.size(); k++)
+					send_server_msg(ch[i], ":" + client.GetNickname() + "!" + client.GetUsername() + "@" + client.GetIPaddr() + " JOIN :" + chans[i] + "\r\n");
+				if (this->Channels[j].GetTopic() != "")
+					send_server_msg(client, RPL_TOPIC(client.GetNickname(), this->Channels[j].GetName(), this->Channels[j].GetTopic()));
+				std::ostringstream	oss;
+				for (k = 0; k < ch.size(); k++)
+				{
+					if (k == 0)
+						oss << "@" << ch[k].GetNickname() << " ";
+					else if (k == ch.size() - 1)
+						oss << "+" << ch[k].GetNickname() << "\r\n";
+					else
+						oss << "+" << ch[k].GetNickname() << " ";
+				}
+				return (send_server_msg(client, RPL_NAMREPLY(client.GetNickname(), this->Channels[j].GetName()) + oss.str()));
 			}
 			else
 			{
-				
+				// here to create a new channel
 			}
 		}
 	}
