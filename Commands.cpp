@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/07 15:37:46 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/10 15:33:15 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,13 +188,16 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 		}
 		return ;
 	}
-	int	x,y;
+	size_t	x,y;
 	x = std::count(args.second[0].begin(), args.second[0].end(), ',');
 	y = std::count(args.second[1].begin(), args.second[1].end(), ',');
-	if (args.second.size() == 2 && ((args.second[0].size() != x) || (x != y)))
+	if (args.second.size() == 2 && x != y)
 		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
 	chans = split_input(args.second[0], ",");
-	keys = split_input(args.second[1], ",");
+	if (args.second.size() > 0 && chans.size() != x + 1)
+		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+	if (args.second[1].size() > 0)
+		keys = split_input(args.second[1], ",");
 	// std::cout << "size: " << chans.size() << std::endl;
 	// for (i = 0; i < chans.size(); i++)
 	// 	std::cout << "- \'" << chans[i] << "\'" << std::endl;
@@ -217,39 +220,50 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 					return (send_server_msg(client, ERR_INVITEONLYCHAN(client.GetNickname(), chans[i])));
 				if (this->Channels[j].GetKey() != "" && keys[i] != this->Channels[j].GetKey())
 					return (send_server_msg(client, ERR_BADCHANNELKEY(client.GetNickname(), chans[i])));
-				std::vector<Client> ch;
-				ch = this->Channels[j].GetMemberlist();
-				if (ch.size() == this->Channels[j].GetLimit())
+				std::vector<Client> mbs;
+				mbs = this->Channels[j].GetMemberlist();
+				if (mbs.size() == this->Channels[j].GetLimit())
 					return (send_server_msg(client, ERR_CHANNELISFULL(client.GetNickname(), chans[i])));
-				ch.push_back(client);
-				std::cout << "size: " << ch.size() << std::endl;
+				mbs.push_back(client);
+				std::cout << "size: " << mbs.size() << std::endl;
 				size_t	k;
-				for (k = 0; k < ch.size(); k++)
-					send_server_msg(ch[i], ":" + client.GetNickname() + "!" + client.GetUsername() + "@" + client.GetIPaddr() + " JOIN :" + chans[i] + "\r\n");
+				for (k = 0; k < mbs.size(); k++)
+					send_server_msg(mbs[i], ":" + client.GetNickname() + "!" + client.GetUsername() + "@" + client.GetIPaddr() + " JOIN :" + chans[i] + "\r\n");
 				if (this->Channels[j].GetTopic() != "")
 					send_server_msg(client, RPL_TOPIC(client.GetNickname(), this->Channels[j].GetName(), this->Channels[j].GetTopic()));
 				std::ostringstream	oss;
-				for (k = 0; k < ch.size(); k++)
+				for (k = 0; k < mbs.size(); k++)
 				{
 					if (k == 0)
-						oss << "@" << ch[k].GetNickname() << " ";
-					else if (k == ch.size() - 1)
-						oss << "+" << ch[k].GetNickname() << "\r\n";
+						oss << "@" << mbs[k].GetNickname() << " ";
+					else if (k == mbs.size() - 1)
+						oss << "+" << mbs[k].GetNickname() << "\r\n";
 					else
-						oss << "+" << ch[k].GetNickname() << " ";
+						oss << "+" << mbs[k].GetNickname() << " ";
 				}
 				return (send_server_msg(client, RPL_NAMREPLY(client.GetNickname(), this->Channels[j].GetName()) + oss.str()));
 			}
-			else
-			{
-				// here to create a new channel
-			}
 		}
+		// std::cout << "ZABBB" << std::endl;
+		Channel	ch(chans[i], "");
+		std::vector<Client> mbs;
+
+		if (keys.size() >= i + 1)
+			ch.SetKey(keys[i]);
+		mbs = ch.GetMemberlist();
+		mbs.push_back(client);
+		this->Channels.push_back(ch);
+		send_server_msg(client, ":" + client.GetNickname() + "!" + client.GetUsername() + "@" + client.GetIPaddr() + " JOIN :" + chans[i] + "\r\n");
+		std::ostringstream	tmp;
+		tmp << "@" << client.GetNickname() << "\r\n";
+		send_server_msg(client, RPL_NAMREPLY(client.GetNickname(), this->Channels[j].GetName()) + tmp.str());
 	}
 }
 
 void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Client &client)
 {
+	if (args.first == "CAP" || args.first == "cap")
+		return ;
 	if (args.first == "PASS" || args.first == "pass")
 		pass(args, client);
 	else if (args.first == "NICK" || args.first == "nick")

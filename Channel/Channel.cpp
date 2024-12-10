@@ -6,13 +6,13 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/30 16:46:42 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/07 15:17:57 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/10 00:29:53 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Channel.hpp"
 
-Channel::Channel(std::string Name, std::string Key) : Name(Name), Key(Key), Topic(""), inv_only(false), Limit(10000)
+Channel::Channel(std::string Name, std::string Key) : Name(Name), Key(Key), Topic(""), /*inv_only(false), */Limit(10000)
 {
 }
 

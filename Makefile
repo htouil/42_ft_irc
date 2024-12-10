@@ -6,7 +6,7 @@
 #    By: htouil <htouil@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/15 23:36:12 by htouil            #+#    #+#              #
-#    Updated: 2024/12/03 23:08:47 by htouil           ###   ########.fr        #
+#    Updated: 2024/12/10 14:41:56 by htouil           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ OBJS	= ${SRCS:.cpp=.o}
 
 CPPC	= c++
 
-FLAGS	= -Wall -Wextra -Werror -std=c++98
+FLAGS	= -Wall -Wextra -Werror -std=c++98 -ggdb3
 
 .PHONY	= all clean fclean re
 

@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/30 16:46:37 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/07 15:17:46 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/10 14:34:55 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ class Channel
 		void				SetKey(std::string newKey);
 		std::string			GetTopic();
 		void				SetTopic(std::string newTopic);
-		size_t					GetLimit();
+		size_t				GetLimit();
 		void				SetLimit(size_t newLimit);
 		bool				Getifinvonly();
 		std::vector<Client>	GetMemberlist();
