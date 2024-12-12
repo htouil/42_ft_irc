@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/07 15:36:32 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/12 16:54:17 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,22 +35,23 @@
 
 //server messages:
 # define USERLEN 10
-# define RPL_WELCOME(nickname, username, IPaddr) (":Discord Mdere7 001 " + nickname + " :Weclome to Discord Mdere7 server " + nickname + "!" + username + "@" + IPaddr + "\r\n")
-# define ERR_NOTENOUGHPARAMS(nickname) (":Discord Mdere7 461 " + nickname + " :Not enough parameters.\r\n")
-# define ERR_TOOMANYPARAMS(nickname) (":Discord Mdere7 1001" + nickname + " :Too many parameters.\r\n")
-# define ERR_PASSWDMISMATCH(nickname) (":Discord Mdere7 464 " + nickname + " :Password incorrect.\r\n")
-# define ERR_NOTREGISTERED(nickname) (":Discord Mdere7 451 " + nickname + " :You have not registered.\r\n")
-# define ERR_ALREADYREGISTERED(nickname) (":Discord Mdere7 462 " + nickname + " :You may not reregister.\r\n")
-# define ERR_NONICKNAMEGIVEN(nickname) ("Discord Mdere7 431 " + nickname + " :No nickname given.\r\n")
-# define ERR_NICKNAMEINUSE(oldnick, newnick) ("Discord Mdere7 433 " + oldnick + " " + newnick + " :Nickname already in use.\r\n")
-# define ERR_ERRONEUSNICKNAME(oldnick, newnick) ("Discord Mdere7 432 " + oldnick + " " + newnick + " :Erroneus nickname.\r\n")
-# define ERR_BANNEDFROMCHAN(nickname, channel) (":Discord Mdere7 474 " + nickname + " " + channel + " :Cannot join channel (+b).\r\n")
-# define ERR_INVITEONLYCHAN(nickname, channel) (":Discord Mdere7 473 " + nickname + " " + channel + " :Cannot join channel (+i).\r\n")
-# define ERR_BADCHANNELKEY(nickname, channel) (":Discord Mdere7 475 " + nickname + " " + channel + " :Cannot join channel (+k).\r\n")
-# define ERR_BADCHANMASK(nickname, channel) (":Discord Mdere7 475 " + nickname + " " + channel + " :Invalid channel name.\r\n")
-# define ERR_CHANNELISFULL(nickname, channel) (":Discord Mdere7 471 " + nickname + " " + channel + " :Cannot join channel (+l).\r\n")
-# define RPL_TOPIC(nickname, channel, topic) (":Discord Mdere7 332 " + nickname + " " + channel + " :" + topic + "\r\n")
-# define RPL_NAMREPLY(nickname, channel) (":Discord Mdere7 353 " + nickname + " = " + channel + " :")
+# define RPL_WELCOME(nickname, username, IPaddr) ("001 " + nickname + " :Weclome to Discord Mdere7 server " + nickname + "!" + username + "@" + IPaddr + "\r\n")
+# define ERR_NOTENOUGHPARAMS(nickname) ("461 " + nickname + " :Not enough parameters.\r\n")
+# define ERR_TOOMANYPARAMS(nickname) ("1001" + nickname + " :Too many parameters.\r\n")
+# define ERR_PASSWDMISMATCH(nickname) ("464 " + nickname + " :Password incorrect.\r\n")
+# define ERR_NOTREGISTERED(nickname) ("451 " + nickname + " :You have not registered.\r\n")
+# define ERR_ALREADYREGISTERED(nickname) ("462 " + nickname + " :You may not reregister.\r\n")
+# define ERR_NONICKNAMEGIVEN(nickname) ("431 " + nickname + " :No nickname given.\r\n")
+# define ERR_NICKNAMEINUSE(oldnick, newnick) ("433 " + oldnick + " " + newnick + " :Nickname already in use.\r\n")
+# define ERR_ERRONEUSNICKNAME(oldnick, newnick) ("432 " + oldnick + " " + newnick + " :Erroneus nickname.\r\n")
+# define ERR_BANNEDFROMCHAN(nickname, channel) ("474 " + nickname + " " + channel + " :Cannot join channel (+b).\r\n")
+# define ERR_INVITEONLYCHAN(nickname, channel) ("473 " + nickname + " " + channel + " :Cannot join channel (+i).\r\n")
+# define ERR_BADCHANNELKEY(nickname, channel) ("475 " + nickname + " " + channel + " :Cannot join channel (+k).\r\n")
+# define ERR_BADCHANMASK(nickname, channel) ("475 " + nickname + " " + channel + " :Invalid channel name.\r\n")
+# define ERR_CHANNELISFULL(nickname, channel) ("471 " + nickname + " " + channel + " :Cannot join channel (+l).\r\n")
+# define RPL_TOPIC(nickname, channel, topic) ("332 " + nickname + " " + channel + " :" + topic + "\r\n")
+# define RPL_NAMREPLY(nickname, channel) ("353 " + nickname + " = " + channel + " :")
+# define ERR_UNKNOWNERROR(nickname, command) ("400 " + nickname + " " + command + " :Command needs to end with a pair of CR('\r') and NL('\n').\r\n")
 
 class Server
 {
@@ -83,6 +84,7 @@ class Server
 		void		help(Client &client);
 		void		join(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		commands(std::pair<std::string, std::vector<std::string> > args, Client &client);
+		void		send_server_msg(Client &client, std::string err_msg);
 };
 
 // std::vector<std::string>	split_input(std::string buffer, char delimiter);

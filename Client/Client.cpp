@@ -6,13 +6,13 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 23:49:35 by htouil            #+#    #+#             */
-/*   Updated: 2024/11/28 00:03:05 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/11 22:06:23 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
-Client::Client() : Fd(-1), IPaddr(""), Cpassword(false), Nickname("*"), Username("*"), Realname("*"), Registered(false)
+Client::Client() : Fd(-1), IPaddr(""), IfPassCorr(false), Nickname("*"), Username("*"), Realname("*"), Registered(false)
 {
 }
 
@@ -56,14 +56,15 @@ void	Client::SetRealname(std::string newName)
 	this->Realname = newName;
 }
 
-bool	Client::GetPassword()
+bool	Client::GetIfPassCorr()
 {
-	return (this->Cpassword);
+	return (this->IfPassCorr);
 }
 
-void	Client::SetPassword(bool newPass)
+void	Client::SetPassword(std::string newPass)
 {
-	this->Cpassword = newPass;
+	this->IfPassCorr = true;
+	this->InPass = newPass;
 }
 
 std::string	Client::GetIPaddr()

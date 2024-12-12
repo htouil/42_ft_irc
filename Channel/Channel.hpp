@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/30 16:46:37 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/10 14:34:55 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/11 21:57:50 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ class Channel
 		std::string				Key;
 		// std::string				Mod;
 		std::string				Topic;
-		size_t						Limit;
+		size_t					Limit;
 		bool					inv_only;
 		std::vector<Client>		Members;
 		std::vector<Client>		Banned;

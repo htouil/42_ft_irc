@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/10 15:33:15 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/12 16:54:33 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,20 +38,21 @@ std::string	display_current_time()
 	return (oss.str());
 }
 
-void	send_server_msg(Client &client, std::string err_msg)
+void	Server::send_server_msg(Client &client, std::string err_msg)
 {
 	std::string	tmp;
 
 	tmp = display_current_time() + err_msg;
-	if (send(client.GetFd(), (tmp).c_str(), tmp.size(), 0) == -1)
+	if (send(client.GetFd(), (err_msg).c_str(), err_msg.size(), 0) == -1)
 		std::cerr << "Failed to send to client " << client.GetFd() << std::endl;
 }
 
 void	Server::pass(std::pair<std::string, std::vector<std::string> > args, Client &client)
 {
+	// std::cout << "EWAAAA" << std::endl;
 	if (client.GetifReg() == true)
 		return (send_server_msg(client, ERR_ALREADYREGISTERED(client.GetNickname())));
-	if (client.GetPassword() == true)
+	if (client.GetIfPassCorr() == true)
 		return ;
 	if (args.second.size() < 1)
 		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
@@ -59,12 +60,12 @@ void	Server::pass(std::pair<std::string, std::vector<std::string> > args, Client
 		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
 	if (args.second.front() != this->Spassword)
 		return (send_server_msg(client, ERR_PASSWDMISMATCH(client.GetNickname())));
-	client.SetPassword(true);
+	client.SetPassword(args.second.front());
 }
 
 void	Server::nick(std::pair<std::string, std::vector<std::string> > args, Client &client)
 {
-	if (client.GetPassword() == false)
+	if (client.GetIfPassCorr() == false)
 		return (send_server_msg(client, ERR_PASSWDMISMATCH(client.GetNickname())));
 	if (args.second.size() < 1)
 		return (send_server_msg(client, ERR_NONICKNAMEGIVEN(client.GetNickname())));
@@ -90,14 +91,14 @@ void	Server::user(std::pair<std::string, std::vector<std::string> > args, Client
 {
 	if (client.GetifReg() == true)
 		return (send_server_msg(client, ERR_ALREADYREGISTERED(client.GetNickname())));
-	if (client.GetPassword() == false)
+	if (client.GetIfPassCorr() == false)
 		return (send_server_msg(client, ERR_PASSWDMISMATCH(client.GetNickname())));
 	if (args.second.size() < 4)
 		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
 	if (args.second.size() > 4)
 		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
-	if (args.second[1] != "0" || args.second[2] != "*")
-		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+	// if (args.second[1] != "0" || args.second[2] != "*")
+	// 	return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
 	if (args.second[0].size() > 10)
 		client.SetUsername(args.second[0].substr(0, 10));
 	client.SetUsername(args.second[0]);
@@ -190,13 +191,15 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 	}
 	size_t	x,y;
 	x = std::count(args.second[0].begin(), args.second[0].end(), ',');
-	y = std::count(args.second[1].begin(), args.second[1].end(), ',');
+	if (args.second.size() == 2)
+		y = std::count(args.second[1].begin(), args.second[1].end(), ',');
 	if (args.second.size() == 2 && x != y)
 		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+	// std::cout << "SALAM" << std::endl; // segfault in join
 	chans = split_input(args.second[0], ",");
 	if (args.second.size() > 0 && chans.size() != x + 1)
 		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
-	if (args.second[1].size() > 0)
+	if (args.second.size() == 2)
 		keys = split_input(args.second[1], ",");
 	// std::cout << "size: " << chans.size() << std::endl;
 	// for (i = 0; i < chans.size(); i++)
@@ -225,10 +228,13 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 				if (mbs.size() == this->Channels[j].GetLimit())
 					return (send_server_msg(client, ERR_CHANNELISFULL(client.GetNickname(), chans[i])));
 				mbs.push_back(client);
-				std::cout << "size: " << mbs.size() << std::endl;
+				// std::cout << "size: " << mbs.size() << std::endl;
 				size_t	k;
 				for (k = 0; k < mbs.size(); k++)
+				{
+					// std::cout << k << ": " << mbs[i].GetFd() << std::endl;
 					send_server_msg(mbs[i], ":" + client.GetNickname() + "!" + client.GetUsername() + "@" + client.GetIPaddr() + " JOIN :" + chans[i] + "\r\n");
+				}
 				if (this->Channels[j].GetTopic() != "")
 					send_server_msg(client, RPL_TOPIC(client.GetNickname(), this->Channels[j].GetName(), this->Channels[j].GetTopic()));
 				std::ostringstream	oss;
@@ -241,7 +247,7 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 					else
 						oss << "+" << mbs[k].GetNickname() << " ";
 				}
-				return (send_server_msg(client, RPL_NAMREPLY(client.GetNickname(), this->Channels[j].GetName()) + oss.str()));
+				return (send_server_msg(client, RPL_NAMREPLY(client.GetNickname(), (this->Channels[j].GetName()).substr(1)) + oss.str()));
 			}
 		}
 		// std::cout << "ZABBB" << std::endl;
@@ -262,6 +268,10 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 
 void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Client &client)
 {
+	// std::cout << "Command: \'" << args.first << "\'" << std::endl;
+	// for (size_t j = 0; j < args.second.size(); j++)
+	// 	std::cout << "Arg " << j + 1 << ": \'" << args.second[j] << "\'"<< std::endl;
+	// std::cout << "----------------------" << std::endl;
 	if (args.first == "CAP" || args.first == "cap")
 		return ;
 	if (args.first == "PASS" || args.first == "pass")
@@ -272,11 +282,11 @@ void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Cl
 		user(args, client);
 	else if (args.first == "QUIT" || args.first == "quit")
 		quit(args, client);
-	else if (args.first == "HELP" || args.first == "help")
+	else if (args.first == "HELP" || args.first == "help")	
 		help(client);
 	else if (args.first == "JOIN" || args.first == "join")
 		join(args, client);
-	if (client.GetifReg() == false && client.GetPassword() == true && client.GetNickname() != "*" && client.GetUsername() != "*" && client.GetRealname() != "*")
+	if (client.GetifReg() == false && client.GetIfPassCorr() == true && client.GetNickname() != "*" && client.GetUsername() != "*" && client.GetRealname() != "*")
 	{
 		client.SetifReg(true);
 		return (send_server_msg(client, RPL_WELCOME(client.GetNickname(), client.GetUsername(), client.GetIPaddr())));
