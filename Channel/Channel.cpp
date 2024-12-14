@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/30 16:46:42 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/10 00:29:53 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/14 21:32:43 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ bool	Channel::Getifinvonly()
 	return (this->inv_only);
 }
 
-std::vector<Client>	Channel::GetMemberlist()
+std::vector<Client>	&Channel::GetMemberlist()
 {
 	return (this->Members);
 }

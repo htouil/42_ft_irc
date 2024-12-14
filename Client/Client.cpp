@@ -6,13 +6,13 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 23:49:35 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/11 22:06:23 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/14 20:21:27 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
-Client::Client() : Fd(-1), IPaddr(""), IfPassCorr(false), Nickname("*"), Username("*"), Realname("*"), Registered(false)
+Client::Client() : Fd(-1), IPaddr(""), IfPassCorr(false), Nickname("*"), Username("*"), Realname("*"), Registered(false), Chanmod("")
 {
 }
 
@@ -85,4 +85,14 @@ bool	Client::GetifReg()
 void	Client::SetifReg(bool reg)
 {
 	this->Registered = reg;
+}
+
+std::string	Client::GetChanmod()
+{
+	return (this->Chanmod);
+}
+
+void	Client::SetChanmod(std::string newMode)
+{
+	this->Chanmod = newMode;
 }

@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/14 02:49:23 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/14 21:53:12 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,7 +176,7 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
 	if (args.second.size() > 2)
 		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
-	if (args.second.size() == 1 && args.second.front() == "0")
+	if (args.second.size() == 1 && args.second.front() == "0") //send a server msg so that hexchat acknowledge the command. 
 	{
 		for (i = 0; i < this->Channels.size(); i++)
 		{
@@ -213,6 +213,7 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 	{
 		if (chans[i][0] != '#' || std::count(chans[i].begin(), chans[i].end(), ' ') || std::count(chans[i].begin(), chans[i].end(), ','))
 			return (send_server_msg(client, ERR_BADCHANMASK(client.GetNickname(), chans[i])));
+		bool	flag = false;
 		for (j = 0; j < this->Channels.size(); j++)
 		{
 			if (chans[i] == this->Channels[j].GetName())
@@ -223,17 +224,18 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 					return (send_server_msg(client, ERR_INVITEONLYCHAN(client.GetNickname(), chans[i])));
 				if (this->Channels[j].GetKey() != "" && keys[i] != this->Channels[j].GetKey())
 					return (send_server_msg(client, ERR_BADCHANNELKEY(client.GetNickname(), chans[i])));
-				std::vector<Client> mbs;
-				mbs = this->Channels[j].GetMemberlist();
+				std::vector<Client> &mbs = this->Channels[j].GetMemberlist();;
+				// mbs = this->Channels[j].GetMemberlist();
 				if (mbs.size() == this->Channels[j].GetLimit())
 					return (send_server_msg(client, ERR_CHANNELISFULL(client.GetNickname(), chans[i])));
+				client.SetChanmod("+");
 				mbs.push_back(client);
-				// std::cout << "size: " << mbs.size() << std::endl;
+				// std::cout << this->Channels[j].GetName() << " | " << mbs.size() << std::endl;
 				size_t	k;
 				for (k = 0; k < mbs.size(); k++)
 				{
 					// std::cout << k << ": " << mbs[i].GetFd() << std::endl;
-					send_server_msg(mbs[i], ":" + client.GetNickname() + "!" + client.GetUsername() + "@" + client.GetIPaddr() + " JOIN :" + chans[i] + "\r\n");
+					send_server_msg(mbs[k], ":" + client.GetNickname() + "!" + client.GetUsername() + "@" + client.GetIPaddr() + " JOIN :" + chans[i] + "\r\n");
 				}
 				if (this->Channels[j].GetTopic() != "")
 					send_server_msg(client, RPL_TOPIC(client.GetNickname(), this->Channels[j].GetName(), this->Channels[j].GetTopic()));
@@ -241,35 +243,45 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 				for (k = 0; k < mbs.size(); k++)
 				{
 					if (k == 0)
-						oss << "@" << mbs[k].GetNickname() << " ";
+						oss << "@" << mbs[k].GetNickname();
 					else if (k == mbs.size() - 1)
-						oss << "+" << mbs[k].GetNickname() << "\r\n";
+						oss << "+" << mbs[k].GetNickname();
 					else
-						oss << "+" << mbs[k].GetNickname() << " ";
+						oss << "+" << mbs[k].GetNickname();
+					if (k < mbs.size() - 1)
+						oss  << " ";
 				}
-				// send_server_msg(client, RPL_NAMREPLY(client.GetNickname(), (this->Channels[j].GetName()).substr(1)) /*+ oss.str()*/);
+				oss  << "\r\n";
+				for (k = 0; k < mbs.size(); k++)
+				{
+					send_server_msg(mbs[k], RPL_NAMREPLY(mbs[k].GetNickname(), (this->Channels[j].GetName()), oss.str()));
+					send_server_msg(mbs[k], RPL_ENDOFNAMES(mbs[k].GetNickname(), this->Channels[j].GetName()));	
+				}
+				flag = true;
+				break ;
 			}
 		}
+		if (flag == true)
+			continue ;
 		// std::cout << "ZABBB" << std::endl;
 		Channel	ch(chans[i], "");
-		std::vector<Client> mbs;
+		std::vector<Client> &mbs = ch.GetMemberlist();;
 
 		if (keys.size() >= i + 1)
 			ch.SetKey(keys[i]);
-		mbs = ch.GetMemberlist();
+		// mbs = ch.GetMemberlist();
+		client.SetChanmod("@");
 		mbs.push_back(client);
 		this->Channels.push_back(ch);
-		send_server_msg(client, ":" + client.GetNickname() + "!~" + client.GetUsername() + "@" + client.GetIPaddr() + " JOIN :" + chans[i] + "\r\n");
+		send_server_msg(client, ":" + client.GetNickname() + "!" + client.GetUsername() + "@" + client.GetIPaddr() + " JOIN :" + chans[i] + "\r\n");
 		std::string user = ":" + client.GetNickname() + "!" + client.GetUsername() + "@" + client.GetIPaddr();
-		// here send TOPIC msg
-		std::ostringstream timeStr;
-		timeStr << std::time(0);
+		// std::ostringstream timeStr;
+		// timeStr << std::time(0);
 		// send_server_msg(client, RPL_TOPICWHOTIME(client.GetNickname(), chans[i], user, timeStr.str())); 
 		std::ostringstream	tmp;
 		tmp << "@" << client.GetNickname() << "\r\n";
 		send_server_msg(client, RPL_NAMREPLY(client.GetNickname(), this->Channels[j].GetName(), tmp.str()));
 		send_server_msg(client, RPL_ENDOFNAMES(client.GetNickname(), chans[i]));
-		return ;
 	}
 }
 

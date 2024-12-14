@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:45:57 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/14 00:16:59 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/14 21:20:14 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,7 +144,7 @@ void	Server::receive_request(int clifd)
 	else if (bytes > 0)
 	{
 		// for (i = 0; i < buffer.size(); i++)
-			std::cout << "buffer: " << (int) buffer[buffer.size() - 2] << std::endl;
+		// std::cout << "buffer: " << (int) buffer[buffer.size() - 2] << std::endl;
 		if (buffer.empty())
 			return ;
 		pos = this->find_fd(clifd, this->Clients);
@@ -154,11 +154,11 @@ void	Server::receive_request(int clifd)
 		if (pos != -1) // && this->Clients[pos].GetifReg() == false
 		{
 			cmds = split_input(tmp, "\r\n");
-			std::cout << "cmds size: " << cmds.size() << std::endl;
+			// std::cout << "cmds size: " << cmds.size() << std::endl;
 			for (size_t j = 0; j < cmds.size(); j++)
 			{
-				std::cout << "Cmd " << j + 1 << ": \'" << cmds[j] << "\'"<< std::endl;
-				std::cout << "----------------------" << std::endl;
+				// std::cout << "Cmd " << j + 1 << ": \'" << cmds[j] << "\'"<< std::endl;
+				// std::cout << "----------------------" << std::endl;
 				args = extract_args(cmds[j]); 
 				// std::cout << "Command: \'" << args.first << "\'" << std::endl;
 				// for (size_t j = 0; j < args.second.size(); j++)
