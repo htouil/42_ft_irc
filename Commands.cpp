@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/12 16:54:33 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/14 02:49:23 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -247,7 +247,7 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 					else
 						oss << "+" << mbs[k].GetNickname() << " ";
 				}
-				return (send_server_msg(client, RPL_NAMREPLY(client.GetNickname(), (this->Channels[j].GetName()).substr(1)) + oss.str()));
+				// send_server_msg(client, RPL_NAMREPLY(client.GetNickname(), (this->Channels[j].GetName()).substr(1)) /*+ oss.str()*/);
 			}
 		}
 		// std::cout << "ZABBB" << std::endl;
@@ -259,10 +259,17 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 		mbs = ch.GetMemberlist();
 		mbs.push_back(client);
 		this->Channels.push_back(ch);
-		send_server_msg(client, ":" + client.GetNickname() + "!" + client.GetUsername() + "@" + client.GetIPaddr() + " JOIN :" + chans[i] + "\r\n");
+		send_server_msg(client, ":" + client.GetNickname() + "!~" + client.GetUsername() + "@" + client.GetIPaddr() + " JOIN :" + chans[i] + "\r\n");
+		std::string user = ":" + client.GetNickname() + "!" + client.GetUsername() + "@" + client.GetIPaddr();
+		// here send TOPIC msg
+		std::ostringstream timeStr;
+		timeStr << std::time(0);
+		// send_server_msg(client, RPL_TOPICWHOTIME(client.GetNickname(), chans[i], user, timeStr.str())); 
 		std::ostringstream	tmp;
 		tmp << "@" << client.GetNickname() << "\r\n";
-		send_server_msg(client, RPL_NAMREPLY(client.GetNickname(), this->Channels[j].GetName()) + tmp.str());
+		send_server_msg(client, RPL_NAMREPLY(client.GetNickname(), this->Channels[j].GetName(), tmp.str()));
+		send_server_msg(client, RPL_ENDOFNAMES(client.GetNickname(), chans[i]));
+		return ;
 	}
 }
 

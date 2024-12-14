@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:45:57 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/12 20:54:36 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/14 00:16:59 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,7 +149,7 @@ void	Server::receive_request(int clifd)
 			return ;
 		pos = this->find_fd(clifd, this->Clients);
 		if (buffer[buffer.size() - 2] != '\r' || buffer[buffer.size() - 1] != '\n')
-			return (send_server_msg(this->Clients[pos], ERR_UNKNOWNERROR(this->Clients[pos].GetNickname(), "'\'" + buffer + "'\'")));
+			return (send_server_msg(this->Clients[pos], ERR_UNKNOWNERROR(this->Clients[pos].GetNickname(), "\'" + buffer.substr(0, buffer.size() - 1) + "\'")));
 		buffer = remove_crln(buffer);
 		if (pos != -1) // && this->Clients[pos].GetifReg() == false
 		{

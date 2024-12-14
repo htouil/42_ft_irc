@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/12 16:54:17 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/14 02:41:41 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 # include <arpa/inet.h>
 # include <sys/socket.h>
 # include <string>
+# include <cstring>
 # include <utility>
 # include <sstream>
 # include <ctime>
@@ -49,9 +50,11 @@
 # define ERR_BADCHANNELKEY(nickname, channel) ("475 " + nickname + " " + channel + " :Cannot join channel (+k).\r\n")
 # define ERR_BADCHANMASK(nickname, channel) ("475 " + nickname + " " + channel + " :Invalid channel name.\r\n")
 # define ERR_CHANNELISFULL(nickname, channel) ("471 " + nickname + " " + channel + " :Cannot join channel (+l).\r\n")
-# define RPL_TOPIC(nickname, channel, topic) ("332 " + nickname + " " + channel + " :" + topic + "\r\n")
-# define RPL_NAMREPLY(nickname, channel) ("353 " + nickname + " = " + channel + " :")
-# define ERR_UNKNOWNERROR(nickname, command) ("400 " + nickname + " " + command + " :Command needs to end with a pair of CR('\r') and NL('\n').\r\n")
+# define RPL_TOPIC(nickname, channel, topic) (":ircserv 332 " + nickname + " " + channel + " :" + topic + "\r\n")
+# define RPL_TOPICWHOTIME(nickname, channel, user, timestamp) (":ircserv 333 " + nickname + " " + channel + " " + user + " " + timestamp + "\r\n")
+# define RPL_NAMREPLY(nickname, channel, member) (":ircserv 353 " + nickname + " = " + channel + " :" + member)
+# define RPL_ENDOFNAMES(nickname, channel) (":ircserv 366 " + nickname + " " + channel + " :End of /NAMES list.\r\n")
+# define ERR_UNKNOWNERROR(nickname, command) ("400 " + nickname + " " + command + " :Command needs to end with a pair of CR('\\r') and NL('\\n').\r\n")
 
 class Server
 {
