@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 20:21:59 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/12 16:58:29 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/16 20:18:04 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,3 +51,26 @@ int		Server::find_fd(int to_find, std::vector<Client> list)
 	return (-1);
 }
 
+std::string	display_current_time()
+{
+	std::time_t			rn = std::time(0);
+	std::tm				*now = std::localtime(&rn);
+	std::ostringstream	oss;
+
+	oss << "["
+		<< (now->tm_year + 1900) << "/"
+		<< std::setw(2) << std::setfill('0') << (now->tm_mon + 1) << "/"
+		<< std::setw(2) << std::setfill('0') << (now->tm_mday) << " "
+		<< std::setw(2) << std::setfill('0') << (now->tm_hour) << ":"
+		<< std::setw(2) << std::setfill('0') << (now->tm_min) << ":" 
+		<< std::setw(2) << std::setfill('0') << (now->tm_sec) << "] ";
+	return (oss.str());
+}
+
+std::string	get_cli_source(Client cli)
+{
+	std::string	source;
+
+	source = cli.GetNickname() + "!" + cli.GetUsername() + "@" + cli.GetIPaddr();
+	return (source);
+}

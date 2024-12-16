@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:46:41 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/14 20:19:54 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/16 17:42:33 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ class Client
 
 	public:
 					Client();
+		bool		operator==(Client *other);
 		int			GetFd();
 		void		SetFd(int newFd);
 		std::string	GetNickname();

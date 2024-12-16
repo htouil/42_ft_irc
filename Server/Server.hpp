@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/14 02:41:41 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/16 20:15:52 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,5 +94,6 @@ class Server
 std::vector<std::string>	split_input(std::string buffer, std::string delimiter);
 std::string					remove_crln(std::string msg);
 std::string					display_current_time();
+std::string					get_cli_source(Client cli);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 23:49:35 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/14 20:21:27 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/16 17:42:43 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,11 @@
 
 Client::Client() : Fd(-1), IPaddr(""), IfPassCorr(false), Nickname("*"), Username("*"), Realname("*"), Registered(false), Chanmod("")
 {
+}
+
+bool	Client::operator==(Client *other)
+{
+	return this->Fd == other->Fd;
 }
 
 int	Client::GetFd()
