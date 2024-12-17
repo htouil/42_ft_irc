@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/17 02:03:51 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/17 19:25:20 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,8 +78,9 @@ class Server
 		void		Server_Socket_Creation();
 		void		Accept_New_Client();
 		void		receive_request(int clifd);
-		int			find_fd(int to_find, std::vector<Client> list);
 		int			find_nickname(std::string to_find, std::vector<Client> list);
+		int			find_fd(int to_find, std::vector<Client> list);
+		int			find_IP(std::string to_find, std::vector<Client> list);
 		void		pass(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		nick(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		user(std::pair<std::string, std::vector<std::string> > args, Client &client);

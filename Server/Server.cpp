@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:45:57 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/17 01:54:08 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/17 19:44:18 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,6 +163,15 @@ void	Server::receive_request(int clifd)
 				// for (size_t j = 0; j < args.second.size(); j++)
 				// 	std::cout << "Arg " << j + 1 << ": \'" << args.second[j] << "\'"<< std::endl;
 				// std::cout << "----------------------" << std::endl;
+				// std::vector<std::time_t>	&CperT = this->Clients[pos].GetCperT();
+				// if (!cmds[j].empty())
+				// {
+				// 	CperT.push_back(std::time(NULL));
+				// 	if (CperT.size() >= 3 && CperT[2] - CperT[0] > 5)
+				// 	{
+						
+				// 	}
+				// }
 				args = extract_args(cmds[j]); 
 				commands(args, this->Clients[pos]);
 			}
@@ -191,14 +200,64 @@ void	Server::Accept_New_Client()
 		std::cerr << "Failed to set the client socket to non-blocking." << std::endl;
 		return ;
 	}
-	newclient.SetFd(clifd);
-	newclient.SetIPaddr(inet_ntoa(newcliaddr.sin_addr));
-	this->Clients.push_back(newclient);
-	newpoll.fd = clifd;
-	newpoll.events = POLLIN;
-	newpoll.revents = 0;
-	this->Fds.push_back(newpoll);
-	std::cout << display_current_time() << " New Client Connected." << std::endl;
+	if (this->find_IP(inet_ntoa(newcliaddr.sin_addr), this->Clients) > -1)
+	{
+		if (send(clifd, "Too many connections from this IP address.\r\n", 44, 0) == -1)
+			std::cerr << "Failed to send to client " << clifd << std::endl;
+		close(clifd);
+	}
+	else
+	{
+		std::string	welcome;
+
+		welcome.append("\n");
+		welcome.append(" /$$      /$$ /$$$$$$$$ /$$        /$$$$$$   /$$$$$$  /$$      /$$ /$$$$$$$$\n");
+        welcome.append("| $$  /$ | $$| $$_____/| $$       /$$__  $$ /$$__  $$| $$$    /$$$| $$_____/ \n");
+        welcome.append("| $$ /$$$| $$| $$      | $$      | $$  \\__/| $$  \\ $$| $$$$  /$$$$| $$      \n");
+        welcome.append("| $$/$$ $$ $$| $$$$$   | $$      | $$      | $$  | $$| $$ $$/$$ $$| $$$$$   \n");
+        welcome.append("| $$$$_  $$$$| $$__/   | $$      | $$      | $$  | $$| $$  $$$| $$| $$__/   \n");
+        welcome.append("| $$$/ \\  $$$| $$      | $$      | $$    $$| $$  | $$| $$\\  $ | $$| $$      \n");
+        welcome.append("| $$/   \\  $$| $$$$$$$$| $$$$$$$$|  $$$$$$/|  $$$$$$/| $$ \\/  | $$| $$$$$$$$\n");
+        welcome.append("|__/     \\__/|________/|________/ \\______/  \\______/ |__/     |__/|________/     \n");
+        welcome.append("                                                                          \n");
+        welcome.append("                             /$$$$$$$$ /$$$$$$                              \n");
+        welcome.append("                            |__  $$__//$$__  $$                             \n");
+        welcome.append("                               | $$  | $$  \\ $$                             \n");
+        welcome.append("                               | $$  | $$  | $$                             \n");
+        welcome.append("                               | $$  | $$  | $$                             \n");
+        welcome.append("                               | $$  | $$  | $$                             \n");
+        welcome.append("                               | $$  |  $$$$$$/                             \n");
+        welcome.append("                               |__/   \\______/                              \n");
+        welcome.append("                                                                          \n");
+        welcome.append("     /$$$$$$$  /$$$$$$  /$$$$$$   /$$$$$$   /$$$$$$  /$$$$$$$  /$$$$$$$  \n");
+        welcome.append("    | $$__  $$|_  $$_/ /$$__  $$ /$$__  $$ /$$__  $$| $$__  $$| $$__  $$   \n");
+        welcome.append("    | $$  \\ $$  | $$  | $$  \\__/| $$  \\__/| $$  \\ $$| $$  \\ $$| $$  \\ $$   \n");
+        welcome.append("    | $$  | $$  | $$  |  $$$$$$ | $$      | $$  | $$| $$$$$$$/| $$  | $$   \n");
+        welcome.append("    | $$  | $$  | $$   \\____  $$| $$      | $$  | $$| $$__  $$| $$  | $$   \n");
+        welcome.append("    | $$  | $$  | $$   /$$  \\ $$| $$    $$| $$  | $$| $$  \\ $$| $$  | $$   \n");
+        welcome.append("    | $$$$$$$/ /$$$$$$|  $$$$$$/|  $$$$$$/|  $$$$$$/| $$  | $$| $$$$$$$/   \n");
+        welcome.append("    |_______/ |______/ \\______/  \\______/  \\______/ |__/  |__/|_______/       \n");
+        welcome.append("                                                                          \n");
+        welcome.append("       /$$      /$$ /$$$$$$$  /$$$$$$$$ /$$$$$$$  /$$$$$$$$ /$$$$$$$$   \n");
+        welcome.append("      | $$$    /$$$| $$__  $$| $$_____/| $$__  $$| $$_____/|_____ $$/     \n");
+        welcome.append("      | $$$$  /$$$$| $$  \\ $$| $$      | $$  \\ $$| $$           /$$/      \n");
+        welcome.append("      | $$ $$/$$ $$| $$  | $$| $$$$$   | $$$$$$$/| $$$$$       /$$/       \n");
+        welcome.append("      | $$  $$$| $$| $$  | $$| $$__/   | $$__  $$| $$__/      /$$/        \n");
+        welcome.append("      | $$\\  $ | $$| $$  | $$| $$      | $$  \\ $$| $$        /$$/         \n");
+        welcome.append("      | $$ \\/  | $$| $$$$$$$/| $$$$$$$$| $$  | $$| $$$$$$$$ /$$/          \n");
+        welcome.append("      |__/     |__/|_______/ |________/|__/  |__/|________/|__/              \n\r\n");
+		if (send(clifd, welcome.c_str(), welcome.size(), 0) == -1)
+			std::cerr << "Failed to send to client " << clifd << std::endl;
+		newclient.SetFd(clifd);
+		newclient.SetIPaddr(inet_ntoa(newcliaddr.sin_addr));
+		this->Clients.push_back(newclient);
+		newpoll.fd = clifd;
+		newpoll.events = POLLIN;
+		newpoll.revents = 0;
+		this->Fds.push_back(newpoll);
+		std::cout << display_current_time() << " New Client Connected." << std::endl;
+		sleep (1);
+	}
 }
 
 void	Server::Server_Initialization(char **av)

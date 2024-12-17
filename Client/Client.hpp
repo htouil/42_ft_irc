@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:46:41 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/16 17:42:33 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/17 17:39:09 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 # define CLIENT_HPP
 
 # include <iostream>
+# include <vector>
+# include <ctime>
 
 class Client
 {
@@ -28,6 +30,7 @@ class Client
 		std::string	Realname;
 		bool		Registered;
 		std::string	Chanmod;
+		std::vector<std::time_t>	CperT;
 
 	public:
 					Client();
@@ -48,6 +51,7 @@ class Client
 		void		SetifReg(bool reg);
 		std::string	GetChanmod();
 		void		SetChanmod(std::string newMode);
+		std::vector<std::time_t>	&GetCperT();
 };
 
 #endif

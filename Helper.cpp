@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 20:21:59 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/16 20:18:04 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/17 19:25:36 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,18 @@ int		Server::find_fd(int to_find, std::vector<Client> list)
 	for (i = 0; i < list.size(); i++)
 	{
 		if (list[i].GetFd() == to_find)
+			return (i);
+	}
+	return (-1);
+}
+
+int		Server::find_IP(std::string to_find, std::vector<Client> list)
+{
+	size_t	i;
+
+	for (i = 0; i < list.size(); i++)
+	{
+		if (list[i].GetIPaddr() == to_find)
 			return (i);
 	}
 	return (-1);

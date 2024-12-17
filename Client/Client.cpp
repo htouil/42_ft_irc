@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 23:49:35 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/16 17:42:43 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/17 17:39:20 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,4 +100,9 @@ std::string	Client::GetChanmod()
 void	Client::SetChanmod(std::string newMode)
 {
 	this->Chanmod = newMode;
+}
+
+std::vector<std::time_t>	&Client::GetCperT()
+{
+	return (this->CperT);
 }

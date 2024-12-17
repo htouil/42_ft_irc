@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/17 02:19:42 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/17 19:42:54 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,35 +114,36 @@ void	Server::quit(std::pair<std::string, std::vector<std::string> > args, Client
 
 void	Server::help(Client &client)
 {
-	std::ostringstream	oss;
-	oss << std::endl 
-		<< "===========================" << std::endl
-		<< "       IRC HELP GUIDE      " << std::endl
-		<< "===========================" << std::endl
-		<< std::endl << "COMMANDS:" << std::endl
-		<< std::endl << "1. " << "PASS:" << std::endl
-		<< "  - Description: Sets the password for connecting to the server." << std::endl
-		<< "  - Usage: PASS <password>" << std::endl
-		<< "  - Note: Must be the first command sent by the client before any other command." << std::endl
-		<< std::endl << "2. " << "NICK:" << std::endl
-		<< "  - Description: Sets or changes your nickname." << std::endl
-		<< "  - Usage: NICK <nickname>" << std::endl
-		<< "  - Note: Nicknames must be unique and cannot contain spaces." << std::endl
-		<< std::endl << "3. " << "USER:" << std::endl
-		<< "  - Description: Sets your username and real name." << std::endl
-		<< "  - Usage: USER <username> 0 * :<realname>" << std::endl
-		<< std::endl << "4. " << "QUIT:" << std::endl
-		<< "  - Description: Disconnects from the server with an optional farewell message." << std::endl
-		<< "  - Usage: QUIT :<message>" << std::endl
-		<< "  - Note: If no message is provided, a default quit message will be sent." << std::endl
-		<< std::endl << "5. " << "HELP:" << std::endl
-		<< "  - Description: Displays this help guide." << std::endl
-		<< "  - Usage: HELP" << std::endl
-		<< std::endl 
-		<< "===========================" << std::endl
-		<< "        END OF GUIDE       " << std::endl
-		<< "===========================" << std::endl << std::endl;
-	send_server_msg(client, oss.str());
+	std::string	help;
+	
+	help.append("\n");
+	help.append("===========================\n");
+	help.append("       IRC HELP GUIDE      \n");
+	help.append("===========================\n");
+	help.append("\nCOMMANDS:\n");
+	help.append("\n1. PASS:\n");
+	help.append("  - Description: Sets the password for connecting to the server.\n");
+	help.append("  - Usage: PASS <password>\n");
+	help.append("  - Note: Must be the first command sent by the client before any other command.\n");
+	help.append("\n2. NICK:\n");
+	help.append("  - Description: Sets or changes your nickname.\n");
+	help.append("  - Usage: NICK <nickname>\n");
+	help.append("  - Note: Nicknames must be unique and cannot contain spaces.\n");
+	help.append("\n3. USER:\n");
+	help.append("  - Description: Sets your username and real name.\n");
+	help.append("  - Usage: USER <username> 0 * :<realname>\n");
+	help.append("\n4. QUIT:\n");
+	help.append("  - Description: Disconnects from the server with an optional farewell message.\n");
+	help.append("  - Usage: QUIT :<message>\n");
+	help.append("  - Note: If no message is provided, a default quit message will be sent.\n");
+	help.append("\n5. HELP:\n");
+	help.append("  - Description: Displays this help guide.\n");
+	help.append("  - Usage: HELP\n");
+	help.append("\n"); 
+	help.append("===========================\n");
+	help.append("        END OF GUIDE       \n");
+	help.append("===========================\n\r\n");
+	send_server_msg(client, help);
 }
 
 // void	Server::join_help()
