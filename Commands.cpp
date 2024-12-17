@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/17 19:42:54 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/17 20:54:41 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -298,6 +298,24 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 	}
 }
 
+void	Server::privmsg(std::pair<std::string, std::vector<std::string> > args, Client &client)
+{
+	std::vector<std::string>	targets;
+	size_t						x;
+
+	if (client.GetifReg() == false)
+		return (send_server_msg(client, ERR_NOTREGISTERED(client.GetNickname())));
+	if (args.second.size() < 2)
+		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+	if (args.second.size() > 2)
+		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
+	targets = split_input(args.second[0], ",");
+	x = std::count(args.second[0].begin(), args.second[0].end(), ',');
+	if (args.second.size() > 0 && targets.size() != x + 1)
+		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+	for () // here check if targets are duplicate and send msg after.
+}
+
 void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Client &client)
 {
 	// std::cout << "Command: \'" << args.first << "\'" << std::endl;
@@ -318,6 +336,8 @@ void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Cl
 		help(client);
 	else if (args.first == "JOIN" || args.first == "join")
 		join(args, client);
+	else if (args.first == "PRIVMSG" || args.first == "privmsg")
+		privmsg(args, client);
 	if (client.GetifReg() == false && client.GetIfPassCorr() == true && client.GetNickname() != "*" && client.GetUsername() != "*" && client.GetRealname() != "*")
 	{
 		client.SetifReg(true);
