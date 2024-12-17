@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/16 20:57:22 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/17 02:19:42 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,6 +154,10 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 	std::vector<std::string>	chans;
 	std::vector<std::string>	keys;
 
+	// std::cout << "Command: \'" << args.first << "\'" << std::endl;
+	// for (size_t j = 0; j < args.second.size(); j++)
+	// 	std::cout << "Arg " << j + 1 << ": \'" << args.second[j] << "\'"<< std::endl;
+	// std::cout << "----------------------" << std::endl;
 	if (client.GetifReg() == false)
 		return (send_server_msg(client, ERR_NOTREGISTERED(client.GetNickname())));
 	if (args.second.empty())
@@ -212,20 +216,27 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 	// this->Channels.push_back(chh);
 	for (i = 0; i < chans.size(); i++)
 	{
-		if (chans[i][0] != '#' || std::count(chans[i].begin(), chans[i].end(), ' ') || std::count(chans[i].begin(), chans[i].end(), ','))
+		//check private channel &
+		if (chans[i][0] != '#' || std::count(chans[i].begin(), chans[i].end(), ' ') || std::count(chans[i].begin(), chans[i].end(), ',')
+			|| chans[i].size() < 1 || chans[i].size() > 21)
 			return (send_server_msg(client, ERR_BADCHANMASK(client.GetNickname(), chans[i])));
 		bool	flag = false;
 		for (j = 0; j < this->Channels.size(); j++)
 		{
 			if (chans[i] == this->Channels[j].GetName())
 			{
+				std::vector<Client> &Cmbs = this->Channels[j].GetMemberlist();
+				std::vector<Client>::iterator	it;
+
+				it = std::find(Cmbs.begin(), Cmbs.end(), &client);
+				if (it != Cmbs.end())
+					continue ;
 				if (this->find_fd(client.GetFd(), this->Channels[j].GetBannedlist()) > -1)
 					return (send_server_msg(client, ERR_BANNEDFROMCHAN(client.GetNickname(), chans[i])));
 				if (this->Channels[j].Getifinvonly() == true)
 					return (send_server_msg(client, ERR_INVITEONLYCHAN(client.GetNickname(), chans[i])));
-				if (this->Channels[j].GetKey() != "" && keys[i] != this->Channels[j].GetKey())
+				if (this->Channels[j].GetKey() != "" && (keys.empty() || (keys[i] != this->Channels[j].GetKey())))
 					return (send_server_msg(client, ERR_BADCHANNELKEY(client.GetNickname(), chans[i])));
-				std::vector<Client> &Cmbs = this->Channels[j].GetMemberlist();;
 				// Cmbs = this->Channels[j].GetMemberlist();
 				if (Cmbs.size() == this->Channels[j].GetLimit())
 					return (send_server_msg(client, ERR_CHANNELISFULL(client.GetNickname(), chans[i])));

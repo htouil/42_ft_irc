@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:45:57 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/14 21:20:14 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/17 01:54:08 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,11 +159,11 @@ void	Server::receive_request(int clifd)
 			{
 				// std::cout << "Cmd " << j + 1 << ": \'" << cmds[j] << "\'"<< std::endl;
 				// std::cout << "----------------------" << std::endl;
-				args = extract_args(cmds[j]); 
 				// std::cout << "Command: \'" << args.first << "\'" << std::endl;
 				// for (size_t j = 0; j < args.second.size(); j++)
 				// 	std::cout << "Arg " << j + 1 << ": \'" << args.second[j] << "\'"<< std::endl;
 				// std::cout << "----------------------" << std::endl;
+				args = extract_args(cmds[j]); 
 				commands(args, this->Clients[pos]);
 			}
 		}

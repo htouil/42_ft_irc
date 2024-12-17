@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/16 20:15:52 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/17 02:03:51 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@
 # define USERLEN 10
 # define RPL_WELCOME(nickname, username, IPaddr) ("001 " + nickname + " :Weclome to Discord Mdere7 server " + nickname + "!" + username + "@" + IPaddr + "\r\n")
 # define ERR_NOTENOUGHPARAMS(nickname) ("461 " + nickname + " :Not enough parameters.\r\n")
-# define ERR_TOOMANYPARAMS(nickname) ("1001" + nickname + " :Too many parameters.\r\n")
+# define ERR_TOOMANYPARAMS(nickname) ("1001 " + nickname + " :Too many parameters.\r\n")
 # define ERR_PASSWDMISMATCH(nickname) ("464 " + nickname + " :Password incorrect.\r\n")
 # define ERR_NOTREGISTERED(nickname) ("451 " + nickname + " :You have not registered.\r\n")
 # define ERR_ALREADYREGISTERED(nickname) ("462 " + nickname + " :You may not reregister.\r\n")
