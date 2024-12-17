@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/17 20:54:41 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/17 20:55:11 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -313,7 +313,7 @@ void	Server::privmsg(std::pair<std::string, std::vector<std::string> > args, Cli
 	x = std::count(args.second[0].begin(), args.second[0].end(), ',');
 	if (args.second.size() > 0 && targets.size() != x + 1)
 		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
-	for () // here check if targets are duplicate and send msg after.
+	// for () // here check if targets are duplicate and send msg after.
 }
 
 void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Client &client)
