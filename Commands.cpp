@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/18 03:26:56 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/18 22:56:09 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,9 +39,9 @@ void	Server::pass(std::pair<std::string, std::vector<std::string> > args, Client
 	if (client.GetIfPassCorr() == true)
 		return ;
 	if (args.second.size() < 1)
-		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "PASS")));
 	if (args.second.size() > 1)
-		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
+		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname(), "PASS")));
 	if (args.second.front() != this->Spassword)
 		return (send_server_msg(client, ERR_PASSWDMISMATCH(client.GetNickname())));
 	client.SetPassword(args.second.front());
@@ -54,7 +54,7 @@ void	Server::nick(std::pair<std::string, std::vector<std::string> > args, Client
 	if (args.second.size() < 1)
 		return (send_server_msg(client, ERR_NONICKNAMEGIVEN(client.GetNickname())));
 	if (args.second.size() > 1)
-		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
+		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname(), "NICK")));
 	std::string	tmp = args.second.front();
 	if (this->find_nickname(tmp, this->Clients) > -1)
 		return (send_server_msg(client, ERR_NICKNAMEINUSE(client.GetNickname(), tmp)));
@@ -78,22 +78,22 @@ void	Server::user(std::pair<std::string, std::vector<std::string> > args, Client
 	if (client.GetIfPassCorr() == false)
 		return (send_server_msg(client, ERR_PASSWDMISMATCH(client.GetNickname())));
 	if (args.second.size() < 4)
-		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "USER")));
 	if (args.second.size() > 4)
-		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
+		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname(), "USER")));
 	// if (args.second[1] != "0" || args.second[2] != "*")
-	// 	return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+	// 	return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "USER")));
 	if (args.second[0].size() > 10)
 		client.SetUsername(args.second[0].substr(0, 10));
 	client.SetUsername(args.second[0]);
 	if (args.second[3][0] != ':' || !std::isalpha(args.second[3][1]))
-		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "USER")));
 	std::string	tmp = args.second[3];
 	size_t	i;
 	for (i = 1; i < tmp.size(); i++)
 	{
 		if (!std::isalpha(tmp[i]) && tmp[i] != ' ') 
-			return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+			return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "USER")));
 	}
 	size_t pos;
 	pos = args.second[3].find_last_not_of(" ");
@@ -106,7 +106,7 @@ void	Server::user(std::pair<std::string, std::vector<std::string> > args, Client
 void	Server::quit(std::pair<std::string, std::vector<std::string> > args, Client &client)
 {
 	if (args.second.size() > 0)
-		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
+		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname(), "QUIT")));
 	std::cerr << "Client: " << client.GetFd() << " Hung up." << std::endl;
 	this->Remove_Client(client.GetFd());
 	close(client.GetFd());
@@ -162,9 +162,9 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 	if (client.GetifReg() == false)
 		return (send_server_msg(client, ERR_NOTREGISTERED(client.GetNickname())));
 	if (args.second.empty())
-		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "JOIN")));
 	if (args.second.size() > 2)
-		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
+		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname(), "JOIN")));
 	if (args.second.size() == 1 && args.second.front() == "0")
 	{
 		for (i = 0; i < this->Channels.size(); i++)
@@ -201,10 +201,10 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 	if (args.second.size() == 2)
 		y = std::count(args.second[1].begin(), args.second[1].end(), ',');
 	if (args.second.size() == 2 && x != y)
-		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "JOIN")));
 	chans = split_input(args.second[0], ",");
-	if (args.second.size() > 0 && chans.size() != x + 1)
-		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+	if (args.second.size() > 0 && chans.size() != x + 1) // recheck
+		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "JOIN")));
 	if (args.second.size() == 2)
 		keys = split_input(args.second[1], ",");
 	// std::cout << "size: " << chans.size() << std::endl;
@@ -306,14 +306,21 @@ void	Server::privmsg(std::pair<std::string, std::vector<std::string> > args, Cli
 	if (client.GetifReg() == false)
 		return (send_server_msg(client, ERR_NOTREGISTERED(client.GetNickname())));
 	if (args.second.size() < 2)
-		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
+		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "PRIVMSG")));
 	if (args.second.size() > 2)
-		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
+		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname(), "PRIVMSG")));
 	targets = split_input(args.second[0], ",");
+	std::cout << "size: " << targets.size() << std::endl;
+	size_t	j;
+	for (j = 0; j < targets.size(); j++)
+		std::cout << "- \'" << targets[j] << "\'" << std::endl;
 	x = std::count(args.second[0].begin(), args.second[0].end(), ',');
-	if (targets.size() != x + 1) // condition doesnt occure!!!!!!
-		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
-	// if () // maybe need to check if args.second[1] starts with ':' !!!!!!
+	if (targets.size() != x + 1) // recheck
+	{
+		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "PRIVMSG")));
+	}
+	// if (args.second[1][0] != ':')
+	// 	return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "PRIVMSG")));
 	size_t	i;
 	for (i = 0; i < targets.size(); i++)
 	{
@@ -331,12 +338,29 @@ void	Server::privmsg(std::pair<std::string, std::vector<std::string> > args, Cli
 	}
 }
 
+void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Client &client)
+{
+	if (client.GetifReg() == false)
+		return (send_server_msg(client, ERR_NOTREGISTERED(client.GetNickname())));
+	if (args.second.size() < 1)
+		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "TOPIC")));
+	if (args.second.size() > 2)
+		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname(), "TOPIC")));
+	size_t	i;
+	if (args.second.size() == 1)
+	{
+		std::vector<Client>::iterator	it;
+
+		// it = std::find(this->Channels.begin(), this->Channels.end(), ); // maybe use find_if here
+	}
+}
+
 void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Client &client)
 {
-	// std::cout << "Command: \'" << args.first << "\'" << std::endl;
-	// for (size_t j = 0; j < args.second.size(); j++)
-	// 	std::cout << "Arg " << j + 1 << ": \'" << args.second[j] << "\'"<< std::endl;
-	// std::cout << "----------------------" << std::endl;
+	std::cout << "Command: \'" << args.first << "\'" << std::endl;
+	for (size_t j = 0; j < args.second.size(); j++)
+		std::cout << "Arg " << j + 1 << ": \'" << args.second[j] << "\'"<< std::endl;
+	std::cout << "----------------------" << std::endl;
 	if (args.first == "CAP" || args.first == "cap")
 		return ;
 	if (args.first == "PASS" || args.first == "pass")
@@ -353,6 +377,8 @@ void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Cl
 		join(args, client);
 	else if (args.first == "PRIVMSG" || args.first == "privmsg")
 		privmsg(args, client);
+	else if (args.first == "TOPIC" || args.first == "topic")
+		topic(args, client);
 	if (client.GetifReg() == false && client.GetIfPassCorr() == true && client.GetNickname() != "*" && client.GetUsername() != "*" && client.GetRealname() != "*")
 	{
 		client.SetifReg(true);

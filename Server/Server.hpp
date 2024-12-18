@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/18 02:50:05 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/18 22:37:16 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,8 @@
 //server messages:
 # define USERLEN 10
 # define RPL_WELCOME(nickname, username, IPaddr) ("001 " + nickname + " :Weclome to Discord Mdere7 server " + nickname + "!" + username + "@" + IPaddr + "\r\n")
-# define ERR_NOTENOUGHPARAMS(nickname) ("461 " + nickname + " :Not enough parameters.\r\n")
-# define ERR_TOOMANYPARAMS(nickname) ("1001 " + nickname + " :Too many parameters.\r\n")
+# define ERR_NEEDMOREPARAMS(nickname, command) ("461 " + nickname +  " " + command + " :Not enough parameters.\r\n")
+# define ERR_TOOMANYPARAMS(nickname, command) ("1001 " + nickname +  " " + command + " :Too many parameters.\r\n")
 # define ERR_PASSWDMISMATCH(nickname) ("464 " + nickname + " :Password incorrect.\r\n")
 # define ERR_NOTREGISTERED(nickname) ("451 " + nickname + " :You have not registered.\r\n")
 # define ERR_ALREADYREGISTERED(nickname) ("462 " + nickname + " :You may not reregister.\r\n")
@@ -89,6 +89,7 @@ class Server
 		void		help(Client &client);
 		void		join(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		privmsg(std::pair<std::string, std::vector<std::string> > args, Client &client);
+		void		topic(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		commands(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		send_server_msg(Client &client, std::string err_msg);
 };
