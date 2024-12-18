@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/17 20:55:11 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/18 03:26:56 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -311,9 +311,24 @@ void	Server::privmsg(std::pair<std::string, std::vector<std::string> > args, Cli
 		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname())));
 	targets = split_input(args.second[0], ",");
 	x = std::count(args.second[0].begin(), args.second[0].end(), ',');
-	if (args.second.size() > 0 && targets.size() != x + 1)
+	if (targets.size() != x + 1) // condition doesnt occure!!!!!!
 		return (send_server_msg(client, ERR_NOTENOUGHPARAMS(client.GetNickname())));
-	// for () // here check if targets are duplicate and send msg after.
+	// if () // maybe need to check if args.second[1] starts with ':' !!!!!!
+	size_t	i;
+	for (i = 0; i < targets.size(); i++)
+	{
+		if (std::count(targets.begin(), targets.begin() + i, targets[i]) > 1)
+			continue ;
+		int	pos;
+		pos = this->find_nickname(targets[i], this->Clients);
+		if (pos == -1)
+		{
+			send_server_msg(client, ERR_NOSUCHNICK(targets[i], "PRIVMSG", "nick"));
+			continue ;
+		}
+		else
+			send_server_msg(this->Clients[pos], ":" + get_cli_source(client) + " PRIVMSG " + this->Clients[pos].GetNickname() + " " + args.second[1] + "\r\n");
+	}
 }
 
 void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Client &client)
