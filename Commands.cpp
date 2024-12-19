@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/18 22:56:09 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/19 03:43:55 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -241,7 +241,7 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 				// Cmbs = this->Channels[j].GetMemberlist();
 				if (Cmbs.size() == this->Channels[j].GetLimit())
 					return (send_server_msg(client, ERR_CHANNELISFULL(client.GetNickname(), chans[i])));
-				client.SetChanmod("+");
+				// client.SetChanmod("+");
 				Cmbs.push_back(client);
 				// std::cout << this->Channels[j].GetName() << " | " << Cmbs.size() << std::endl;
 				size_t	k;
@@ -283,8 +283,9 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 		if (keys.size() >= i + 1)
 			ch.SetKey(keys[i]);
 		// Cmbs = ch.GetMemberlist();
-		client.SetChanmod("@");
+		// client.SetChanmod("@");
 		Cmbs.push_back(client);
+		// ch.SetTopic("MER7BA F JAHENAM!"); ////////
 		this->Channels.push_back(ch);
 		send_server_msg(client, ":" + get_cli_source(client) + " JOIN :" + chans[i] + "\r\n");
 		// std::string user = ":" + client.GetNickname() + "!" + client.GetUsername() + "@" + client.GetIPaddr();
@@ -346,12 +347,24 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "TOPIC")));
 	if (args.second.size() > 2)
 		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname(), "TOPIC")));
-	size_t	i;
 	if (args.second.size() == 1)
 	{
-		std::vector<Client>::iterator	it;
+		std::vector<Channel>::iterator	it;
 
-		// it = std::find(this->Channels.begin(), this->Channels.end(), ); // maybe use find_if here
+		it = std::find(this->Channels.begin(), this->Channels.end(), args.second[0]);
+		if (it != this->Channels.end())
+		{
+			if (it->GetTopic() == "")
+				return (send_server_msg(client, RPL_NOTOPIC(client.GetNickname(), it->GetName())));
+			send_server_msg(client, RPL_TOPIC(client.GetNickname(), it->GetName(), it->GetTopic()));
+			std::ostringstream timeStr;
+			timeStr << std::time(0);
+			return (send_server_msg(client, RPL_TOPICWHOTIME(client.GetNickname(), it->GetName(), it->GetMemberlist()[0].GetNickname(), timeStr.str())));
+		}
+	}
+	else
+	{
+		// handle setting and clearing topic
 	}
 }
 

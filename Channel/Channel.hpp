@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/30 16:46:37 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/16 16:47:26 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/19 03:08:57 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ class Channel
 	
 	public:
 							Channel(std::string Name, std::string Key);
+		bool				operator==(std::string name);
 		std::string			GetName();
 		void				SetName(std::string newName);
 		std::string			GetKey();

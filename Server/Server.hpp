@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/18 22:37:16 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/19 03:32:57 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@
 # include "../Client/Client.hpp"
 # include "../Channel/Channel.hpp"
 
-//server messages:
+//server messages: // recheck the first msgs formats in chatgpt
 # define USERLEN 10
 # define RPL_WELCOME(nickname, username, IPaddr) ("001 " + nickname + " :Weclome to Discord Mdere7 server " + nickname + "!" + username + "@" + IPaddr + "\r\n")
 # define ERR_NEEDMOREPARAMS(nickname, command) ("461 " + nickname +  " " + command + " :Not enough parameters.\r\n")
@@ -52,6 +52,7 @@
 # define ERR_CHANNELISFULL(nickname, channel) ("471 " + nickname + " " + channel + " :Cannot join channel (+l).\r\n")
 # define RPL_TOPIC(nickname, channel, topic) (":ircserv 332 " + nickname + " " + channel + " :" + topic + "\r\n")
 # define RPL_TOPICWHOTIME(nickname, channel, user, timestamp) (":ircserv 333 " + nickname + " " + channel + " " + user + " " + timestamp + "\r\n")
+# define RPL_NOTOPIC(nickname, channel) (":ircserv 331 " + nickname + " " + channel + " :No topic is set\r\n")
 # define RPL_NAMREPLY(nickname, channel, member) (":ircserv 353 " + nickname + " = " + channel + " :" + member)
 # define RPL_ENDOFNAMES(nickname, channel) (":ircserv 366 " + nickname + " " + channel + " :End of /NAMES list.\r\n")
 # define ERR_UNKNOWNERROR(nickname, command) ("400 " + nickname + " " + command + " :Command needs to end with a pair of CR('\\r') and NL('\\n').\r\n")
