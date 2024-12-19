@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/19 03:43:55 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/19 20:11:57 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -345,13 +345,14 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 		return (send_server_msg(client, ERR_NOTREGISTERED(client.GetNickname())));
 	if (args.second.size() < 1)
 		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "TOPIC")));
+	// if () // need to verify MODE permissions
 	if (args.second.size() > 2)
 		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname(), "TOPIC")));
+	std::vector<Channel>::iterator	it;
+
+	it = std::find(this->Channels.begin(), this->Channels.end(), args.second[0]);
 	if (args.second.size() == 1)
 	{
-		std::vector<Channel>::iterator	it;
-
-		it = std::find(this->Channels.begin(), this->Channels.end(), args.second[0]);
 		if (it != this->Channels.end())
 		{
 			if (it->GetTopic() == "")
@@ -364,7 +365,37 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 	}
 	else
 	{
-		// handle setting and clearing topic
+		std::string	&topic = args.second[1];
+		if (topic.size() >= 2 && topic[0] == ':' && topic[1] == ':')
+			topic = topic.substr(1);
+		size_t pos;
+		pos = topic.find_last_not_of(" ");
+		if (pos != std::string::npos)
+			topic.erase(pos + 1);
+		std::vector<Client> &Cmbs = it->GetMemberlist();
+		if (topic.size() == 1)
+		{
+			it->SetTopic("");
+			size_t	i;
+
+			for (i = 0; i < Cmbs.size(); i++)
+				send_server_msg(Cmbs[i], RPL_NOTOPIC(client.GetNickname(), it->GetName()));
+			return ;
+		}
+		else
+		{
+			it->SetTopic(topic.substr(1));
+			std::ostringstream timeStr;
+			timeStr << std::time(0);
+			size_t	i;
+
+			for (i = 0; i < Cmbs.size(); i++)
+			{
+				send_server_msg(Cmbs[i], RPL_TOPIC(client.GetNickname(), it->GetName(), it->GetTopic()));
+				send_server_msg(Cmbs[i], RPL_TOPICWHOTIME(client.GetNickname(), it->GetName(), it->GetMemberlist()[0].GetNickname(), timeStr.str()));
+			}
+			return ;
+		}
 	}
 }
 

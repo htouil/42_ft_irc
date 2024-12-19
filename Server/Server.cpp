@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:45:57 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/17 20:00:10 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/19 18:27:43 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,6 +154,7 @@ void	Server::receive_request(int clifd)
 		if (pos != -1) // && this->Clients[pos].GetifReg() == false
 		{
 			cmds = split_input(tmp, "\r\n");
+			// std::cout << "Command: \'" << cmds[0] << "\'" << std::endl;
 			// std::cout << "cmds size: " << cmds.size() << std::endl;
 			for (size_t j = 0; j < cmds.size(); j++)
 			{
