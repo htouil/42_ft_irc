@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/19 20:11:57 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/21 17:50:08 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -348,19 +348,24 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 	// if () // need to verify MODE permissions
 	if (args.second.size() > 2)
 		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname(), "TOPIC")));
-	std::vector<Channel>::iterator	it;
+	std::vector<Channel>::iterator	Cit;
 
-	it = std::find(this->Channels.begin(), this->Channels.end(), args.second[0]);
+	Cit = std::find(this->Channels.begin(), this->Channels.end(), args.second[0]);
 	if (args.second.size() == 1)
 	{
-		if (it != this->Channels.end())
+		if (Cit != this->Channels.end())
 		{
-			if (it->GetTopic() == "")
-				return (send_server_msg(client, RPL_NOTOPIC(client.GetNickname(), it->GetName())));
-			send_server_msg(client, RPL_TOPIC(client.GetNickname(), it->GetName(), it->GetTopic()));
+			std::vector<Client>::iterator	Mit;
+
+			Mit = std::find(Cit->GetMemberlist().begin(), Cit->GetMemberlist().end(), client);
+			if (Mit == Cit->GetMemberlist().end())
+				return (send_server_msg(client, ERR_NOTONCHANNEL(client.GetNickname(), Cit->GetName())));
+			if (Cit->GetTopic() == "")
+				return (send_server_msg(client, RPL_NOTOPIC(client.GetNickname(), Cit->GetName())));
+			send_server_msg(client, RPL_TOPIC(client.GetNickname(), Cit->GetName(), Cit->GetTopic()));
 			std::ostringstream timeStr;
 			timeStr << std::time(0);
-			return (send_server_msg(client, RPL_TOPICWHOTIME(client.GetNickname(), it->GetName(), it->GetMemberlist()[0].GetNickname(), timeStr.str())));
+			return (send_server_msg(client, RPL_TOPICWHOTIME(client.GetNickname(), Cit->GetName(), Cit->GetMemberlist()[0].GetNickname(), timeStr.str())));
 		}
 	}
 	else
@@ -372,27 +377,27 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 		pos = topic.find_last_not_of(" ");
 		if (pos != std::string::npos)
 			topic.erase(pos + 1);
-		std::vector<Client> &Cmbs = it->GetMemberlist();
+		std::vector<Client> &Cmbs = Cit->GetMemberlist();
 		if (topic.size() == 1)
 		{
-			it->SetTopic("");
+			Cit->SetTopic("");
 			size_t	i;
 
 			for (i = 0; i < Cmbs.size(); i++)
-				send_server_msg(Cmbs[i], RPL_NOTOPIC(client.GetNickname(), it->GetName()));
+				send_server_msg(Cmbs[i], RPL_NOTOPIC(client.GetNickname(), Cit->GetName()));
 			return ;
 		}
 		else
 		{
-			it->SetTopic(topic.substr(1));
+			Cit->SetTopic(topic.substr(1));
 			std::ostringstream timeStr;
 			timeStr << std::time(0);
 			size_t	i;
 
 			for (i = 0; i < Cmbs.size(); i++)
 			{
-				send_server_msg(Cmbs[i], RPL_TOPIC(client.GetNickname(), it->GetName(), it->GetTopic()));
-				send_server_msg(Cmbs[i], RPL_TOPICWHOTIME(client.GetNickname(), it->GetName(), it->GetMemberlist()[0].GetNickname(), timeStr.str()));
+				send_server_msg(Cmbs[i], RPL_TOPIC(client.GetNickname(), Cit->GetName(), Cit->GetTopic()));
+				send_server_msg(Cmbs[i], RPL_TOPICWHOTIME(client.GetNickname(), Cit->GetName(), Cit->GetMemberlist()[0].GetNickname(), timeStr.str()));
 			}
 			return ;
 		}
