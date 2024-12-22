@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/21 17:49:06 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/23 00:26:28 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,8 @@
 # define ERR_UNKNOWNERROR(nickname, command) ("400 " + nickname + " " + command + " :Command needs to end with a pair of CR('\\r') and NL('\\n').\r\n")
 # define ERR_NOSUCHNICK(nickname, command, type) (":ircserv 401 " + nickname + " " + command + " :No such " + type + "\r\n")
 # define ERR_NOTONCHANNEL(nickname, channel) (":ircserv 442 " + nickname + " " + channel + " :You're not on that channel\r\n")
-
-
+# define ERR_NOSUCHCHANNEL(nickname, channel) (":ircserv 403 " + nickname + " " + channel + " :No such channel\r\n")
+# define ERR_CHANOPRIVSNEEDED(nickname, channel) (":ircserv 482 " + nickname + " " + channel + " :You're not a channel operator\r\n")
 
 
 

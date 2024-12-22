@@ -6,13 +6,13 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/30 16:46:42 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/19 03:09:02 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/23 00:12:30 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Channel.hpp"
 
-Channel::Channel(std::string Name, std::string Key) : Name(Name), Key(Key), Topic(""), Limit(10000), inv_only(false)
+Channel::Channel(std::string Name, std::string Key) : Name(Name), Key(Key), Topic(""), Limit(10000), Inv_only(false), Can_topic(false)
 {
 }
 
@@ -61,9 +61,21 @@ void	Channel::SetLimit(size_t newLimit)
 	this->Limit = newLimit;
 }
 
-bool	Channel::Getifinvonly()
+bool	Channel::GetifInvonly()
 {
-	return (this->inv_only);
+	return (this->Inv_only);
+}
+void	Channel::Setifinvonly(bool ifinv)
+{
+	this->Inv_only = ifinv;
+}
+bool	Channel::GetCantopic()
+{
+	return (this->Can_topic);
+}
+void	Channel::SetCantopic(bool iftopic)
+{
+	this->Can_topic = iftopic;
 }
 
 std::vector<Client>	&Channel::GetMemberlist()

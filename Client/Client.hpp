@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:46:41 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/17 17:39:09 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/22 23:54:21 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ class Client
 		std::string	Username;
 		std::string	Realname;
 		bool		Registered;
-		std::string	Chanmod;
+		std::string	Chanmod;  // to be removed, maybe
 		std::vector<std::time_t>	CperT;
 
 	public:

@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/30 16:46:37 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/19 03:08:57 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/23 00:12:14 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,8 @@ class Channel
 		// std::string				Mod;
 		std::string				Topic;
 		size_t					Limit;
-		bool					inv_only;
+		bool					Inv_only;
+		bool					Can_topic;
 		std::vector<Client>		Members;
 		std::vector<Client>		Banned;
 	
@@ -40,7 +41,10 @@ class Channel
 		void				SetTopic(std::string newTopic);
 		size_t				GetLimit();
 		void				SetLimit(size_t newLimit);
-		bool				Getifinvonly();
+		bool				GetifInvonly();
+		void				Setifinvonly(bool ifinv);
+		bool				GetCantopic();
+		void				SetCantopic(bool iftopic);
 		std::vector<Client>	&GetMemberlist();
 		std::vector<Client>	GetBannedlist();
 };

@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/21 17:50:08 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/23 00:26:57 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -234,7 +234,7 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 					continue ;
 				if (this->find_fd(client.GetFd(), this->Channels[j].GetBannedlist()) > -1)
 					return (send_server_msg(client, ERR_BANNEDFROMCHAN(client.GetNickname(), chans[i])));
-				if (this->Channels[j].Getifinvonly() == true)
+				if (this->Channels[j].GetifInvonly() == true)
 					return (send_server_msg(client, ERR_INVITEONLYCHAN(client.GetNickname(), chans[i])));
 				if (this->Channels[j].GetKey() != "" && (keys.empty() || (keys[i] != this->Channels[j].GetKey())))
 					return (send_server_msg(client, ERR_BADCHANNELKEY(client.GetNickname(), chans[i])));
@@ -345,28 +345,28 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 		return (send_server_msg(client, ERR_NOTREGISTERED(client.GetNickname())));
 	if (args.second.size() < 1)
 		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "TOPIC")));
-	// if () // need to verify MODE permissions
 	if (args.second.size() > 2)
 		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname(), "TOPIC")));
 	std::vector<Channel>::iterator	Cit;
 
 	Cit = std::find(this->Channels.begin(), this->Channels.end(), args.second[0]);
+	if (Cit != this->Channels.end())
+		return (send_server_msg(client, ERR_NOSUCHCHANNEL(client.GetNickname(), Cit->GetName())));
 	if (args.second.size() == 1)
 	{
-		if (Cit != this->Channels.end())
-		{
-			std::vector<Client>::iterator	Mit;
+		std::vector<Client>::iterator	Mit;
 
-			Mit = std::find(Cit->GetMemberlist().begin(), Cit->GetMemberlist().end(), client);
-			if (Mit == Cit->GetMemberlist().end())
-				return (send_server_msg(client, ERR_NOTONCHANNEL(client.GetNickname(), Cit->GetName())));
-			if (Cit->GetTopic() == "")
-				return (send_server_msg(client, RPL_NOTOPIC(client.GetNickname(), Cit->GetName())));
-			send_server_msg(client, RPL_TOPIC(client.GetNickname(), Cit->GetName(), Cit->GetTopic()));
-			std::ostringstream timeStr;
-			timeStr << std::time(0);
-			return (send_server_msg(client, RPL_TOPICWHOTIME(client.GetNickname(), Cit->GetName(), Cit->GetMemberlist()[0].GetNickname(), timeStr.str())));
-		}
+		Mit = std::find(Cit->GetMemberlist().begin(), Cit->GetMemberlist().end(), client);
+		if (Mit == Cit->GetMemberlist().end())
+			return (send_server_msg(client, ERR_NOTONCHANNEL(client.GetNickname(), Cit->GetName())));
+		if (Cit->GetCantopic() == false && this->find_nickname(client.GetNickname(), Cit->GetMemberlist()))
+			return (send_server_msg(client, ERR_CHANOPRIVSNEEDED(client.GetNickname(), Cit->GetName())));
+		if (Cit->GetTopic() == "")
+			return (send_server_msg(client, RPL_NOTOPIC(client.GetNickname(), Cit->GetName())));
+		send_server_msg(client, RPL_TOPIC(client.GetNickname(), Cit->GetName(), Cit->GetTopic()));
+		std::ostringstream timeStr;
+		timeStr << std::time(0);
+		return (send_server_msg(client, RPL_TOPICWHOTIME(client.GetNickname(), Cit->GetName(), Cit->GetMemberlist()[0].GetNickname(), timeStr.str())));
 	}
 	else
 	{
