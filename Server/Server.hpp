@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/23 00:26:28 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/23 04:46:11 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,6 @@
 # define ERR_BADCHANMASK(nickname, channel) ("475 " + nickname + " " + channel + " :Invalid channel name.\r\n")
 # define ERR_CHANNELISFULL(nickname, channel) ("471 " + nickname + " " + channel + " :Cannot join channel (+l).\r\n")
 # define RPL_TOPIC(nickname, channel, topic) (":ircserv 332 " + nickname + " " + channel + " :" + topic + "\r\n")
-# define RPL_TOPICWHOTIME(nickname, channel, user, timestamp) (":ircserv 333 " + nickname + " " + channel + " " + user + " " + timestamp + "\r\n")
 # define RPL_NOTOPIC(nickname, channel) (":ircserv 331 " + nickname + " " + channel + " :No topic is set\r\n")
 # define RPL_NAMREPLY(nickname, channel, member) (":ircserv 353 " + nickname + " = " + channel + " :" + member)
 # define RPL_ENDOFNAMES(nickname, channel) (":ircserv 366 " + nickname + " " + channel + " :End of /NAMES list.\r\n")

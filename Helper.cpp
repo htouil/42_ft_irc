@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 20:21:59 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/18 22:57:15 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/23 02:55:17 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,3 +86,5 @@ std::string	get_cli_source(Client cli)
 	source = cli.GetNickname() + "!" + cli.GetUsername() + "@" + cli.GetIPaddr();
 	return (source);
 }
+
+

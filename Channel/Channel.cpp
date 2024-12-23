@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/30 16:46:42 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/23 00:12:30 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/23 06:24:52 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ void	Channel::SetCantopic(bool iftopic)
 	this->Can_topic = iftopic;
 }
 
-std::vector<Client>	&Channel::GetMemberlist()
+std::vector<std::pair<Client, std::string> >	&Channel::GetMemberlist()
 {
 	return (this->Members);
 }
