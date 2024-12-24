@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:45:57 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/24 19:36:42 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/24 22:26:27 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,12 +158,12 @@ void	Server::receive_request(int clifd)
 			// std::cout << "cmds size: " << cmds.size() << std::endl;
 			for (size_t j = 0; j < cmds.size(); j++)
 			{
-				std::cout << "Cmd " << j + 1 << ": \'" << cmds[j] << "\'"<< std::endl;
-				std::cout << "----------------------" << std::endl;
-				std::cout << "Command: \'" << args.first << "\'" << std::endl;
-				for (size_t j = 0; j < args.second.size(); j++)
-					std::cout << "Arg " << j + 1 << ": \'" << args.second[j] << "\'"<< std::endl;
-				std::cout << "----------------------" << std::endl;
+				// std::cout << "Cmd " << j + 1 << ": \'" << cmds[j] << "\'"<< std::endl;
+				// std::cout << "----------------------" << std::endl;
+				// std::cout << "Command: \'" << args.first << "\'" << std::endl;
+				// for (size_t j = 0; j < args.second.size(); j++)
+				// 	std::cout << "Arg " << j + 1 << ": \'" << args.second[j] << "\'"<< std::endl;
+				// std::cout << "----------------------" << std::endl;
 				// std::vector<std::time_t>	&CperT = this->Clients[pos].GetCperT();
 				// if (!cmds[j].empty())
 				// {

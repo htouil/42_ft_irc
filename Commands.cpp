@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/24 20:01:27 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/24 23:55:49 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,18 +208,17 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 	if (args.second.size() == 2 && x != y)
 		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "JOIN")));
 	chans = split_input(args.second[0], ",");
-	if (args.second.size() > 0 && chans.size() != x + 1) // recheck
+	if (args.second.size() > 0 && chans.size() != x + 1) //maybe good
 		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "JOIN")));
 	if (args.second.size() == 2)
 		keys = split_input(args.second[1], ",");
-	// std::cout << "size: " << chans.size() << std::endl;
+	// std::cout << "size chans: " << chans.size() << std::endl;
+	// std::cout << "size x: " << x << std::endl;
 	// for (i = 0; i < chans.size(); i++)
 	// 	std::cout << "- \'" << chans[i] << "\'" << std::endl;
 	// std::cout << "size: " << keys.size() << std::endl;
 	// for (i = 0; i < keys.size(); i++)
 	// 	std::cout << "- \'" << keys[i] << "\'" << std::endl;
-	// Channel	chh("#ch", "key");
-	// this->Channels.push_back(chh);
 	for (i = 0; i < chans.size(); i++)
 	{
 		//check private channel &
@@ -246,30 +245,45 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 				if (Cmbs.size() == this->Channels[j].GetLimit())
 					return (send_server_msg(client, ERR_CHANNELISFULL(client.GetNickname(), chans[i])));
 				Cmbs.push_back(std::make_pair(client, "+"));
-				// std::cout << this->Channels[j].GetName() << " | " << Cmbs.size() << std::endl;
 				size_t	k;
 
 				for (k = 0; k < Cmbs.size(); k++)
-				{
-					// std::cout << k << ": " << Cmbs[i].GetFd() << std::endl;
 					send_server_msg(Cmbs[k].first, ":" + client.GetNickname() + "!" + client.GetUsername() + "@" + client.GetIPaddr() + " JOIN :" + chans[i] + "\r\n");
-				}
 				if (this->Channels[j].GetTopic() != "")
 					send_server_msg(client, RPL_TOPIC(client.GetNickname(), this->Channels[j].GetName(), this->Channels[j].GetTopic()));
-				std::ostringstream	oss;
+				// for (k = 0; k < Cmbs.size(); k++)
+				// {
+				// 	// std::cout << "Client " << k << ": " << Cmbs[k].second << std::endl;
+				// 	if (Cmbs[k].second == "@")
+				// 		ops << "@" << Cmbs[k].first.GetNickname();
+				// 	else if (Cmbs[k].second == "+")
+				// 		ops << "+" << Cmbs[k].first.GetNickname();
+				// 	if (k < Cmbs.size() - 1)
+				// 		ops  << " ";
+				// }
+				// ops  << "\r\n";
+				std::ostringstream	ops;
+				std::ostringstream	usrs;
 				for (k = 0; k < Cmbs.size(); k++)
 				{
-					if (Cmbs[i].second == "@")
-						oss << "@" << Cmbs[k].first.GetNickname();
-					else if (Cmbs[i].second == "+")
-						oss << "+" << Cmbs[k].first.GetNickname();
-					if (k < Cmbs.size() - 1)
-						oss  << " ";
+					if (Cmbs[k].second == "@")
+					{
+						ops << "@" << Cmbs[k].first.GetNickname();
+						if (k < Cmbs.size() - 1)
+							ops  << " ";
+					}
+					else if (Cmbs[k].second == "+")
+					{
+						usrs << "+" << Cmbs[k].first.GetNickname();
+						if (k < Cmbs.size() - 1)
+							usrs  << " ";
+					}
 				}
-				oss  << "\r\n";
+				usrs << "\r\n";
+				// std::cout << "List of members: " << ops.str() + usrs.str() << std::endl;
 				for (k = 0; k < Cmbs.size(); k++)
 				{
-					send_server_msg(Cmbs[k].first, RPL_NAMREPLY(Cmbs[k].first.GetNickname(), (this->Channels[j].GetName()), oss.str()));
+					send_server_msg(Cmbs[k].first, RPL_NAMREPLY(Cmbs[k].first.GetNickname(), (this->Channels[j].GetName()), ops.str() + usrs.str()));
 					send_server_msg(Cmbs[k].first, RPL_ENDOFNAMES(Cmbs[k].first.GetNickname(), this->Channels[j].GetName()));	
 				}
 				flag = true;
@@ -285,13 +299,13 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 			ch.SetKey(keys[i]);
 		Cmbs.push_back(std::make_pair(client, "@"));
 		this->Channels.push_back(ch);
-		// std::cout << "Mit->second: " << Cmbs[0].second << std::endl;
 		send_server_msg(client, ":" + get_cli_source(client) + " JOIN :" + chans[i] + "\r\n");
 		std::ostringstream	tmp;
 		tmp << Cmbs[0].second << client.GetNickname() << "\r\n";
 		send_server_msg(client, RPL_NAMREPLY(client.GetNickname(), this->Channels[j].GetName(), tmp.str()));
 		send_server_msg(client, RPL_ENDOFNAMES(client.GetNickname(), chans[i]));
 	}
+	return ;
 }
 
 void	Server::privmsg(std::pair<std::string, std::vector<std::string> > args, Client &client)
