@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/23 06:32:42 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/24 01:56:21 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,6 +159,18 @@ struct IsSymbol
 	}
 };
 
+bool comparesymbol(const std::pair<Client, std::string> &p, const std::string &target)
+{
+    return p.second == target;
+}
+
+bool findclient(const std::pair<Client, std::string> &c, Client target)
+{
+	if (c.first.GetFd() == target.GetFd()) // check here
+		return true;
+	return false;
+}
+
 void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client &client)
 {
 	size_t						i;
@@ -180,7 +192,7 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 			std::vector<std::pair<Client, std::string> >::iterator		it1;
 			std::vector<std::pair<Client, std::string> >::iterator		it2;
 
-			it1 = std::find(Cmbs.begin(), Cmbs.end(), &client);
+			it1 = std::find_if(Cmbs.begin(), Cmbs.end(), findclient);
 			if (it1 != Cmbs.end())
 			{
 				size_t	k;
@@ -190,16 +202,13 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 				
 				if (it1->second == "@" && Cmbs.size() >= 2 && std::count_if(Cmbs.begin(), Cmbs.end(), IsSymbol("@")) == 1)
 				{
-					it2 = std::find(Cmbs.begin(), Cmbs.end(), IsSymbol("+"));
+					it2 = std::find_if(Cmbs.begin(), Cmbs.end(), comparesymbol);
 					if (it2 != Cmbs.end())
-					{
-						send_server_msg(it1->first, ":ircserv MODE " + this->Channels[i].GetName() + " +o " + it2->first.GetNickname() + "\r\n");
 						send_server_msg(it2->first, ":ircserv MODE " + this->Channels[i].GetName() + " +o " + it2->first.GetNickname() + "\r\n");
-					}
 				}
 				Cmbs.erase(it1);
-				// if (Cmbs.empty())
-				// 	this->Channels.erase(this->Channels.begin() + i);
+				if (Cmbs.empty())
+					this->Channels.erase(this->Channels.begin() + i);
 			}
 		}
 		return ;
@@ -234,10 +243,10 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 		{
 			if (chans[i] == this->Channels[j].GetName())
 			{
-				std::vector<std::pair<Client, std::string> >			 &Cmbs = this->Channels[j].GetMemberlist();
+				std::vector<std::pair<Client, std::string> >			&Cmbs = this->Channels[j].GetMemberlist();
 				std::vector<std::pair<Client, std::string> >::iterator	it;
 
-				it = std::find(Cmbs.begin(), Cmbs.end(), &client);
+				it = std::find_if(Cmbs.begin(), Cmbs.end(), findclient);
 				if (it != Cmbs.end())
 					continue ;
 				if (this->find_fd(client.GetFd(), this->Channels[j].GetBannedlist()) > -1)
@@ -333,6 +342,11 @@ void	Server::privmsg(std::pair<std::string, std::vector<std::string> > args, Cli
 	}
 }
 
+bool	findchannel(Channel c, std::string target)
+{
+	return c.GetName() == target;
+}
+
 void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Client &client)
 {
 	if (client.GetifReg() == false)
@@ -343,13 +357,13 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname(), "TOPIC")));
 	std::vector<Channel>::iterator	Cit;
 
-	Cit = std::find(this->Channels.begin(), this->Channels.end(), args.second[0]);
+	Cit = std::find_if(this->Channels.begin(), this->Channels.end(), findchannel);
 	if (Cit == this->Channels.end())
 		return (send_server_msg(client, ERR_NOSUCHCHANNEL(client.GetNickname(), Cit->GetName())));
 	std::vector<std::pair<Client, std::string> > 			&Cmbs = Cit->GetMemberlist();
 	std::vector<std::pair<Client, std::string> >::iterator	Mit;
 
-	Mit = std::find(Cmbs.begin(), Cmbs.end(), client);
+	Mit = std::find_if(Cmbs.begin(), Cmbs.end(), findclient);
 	if (Mit == Cmbs.end())
 		return (send_server_msg(client, ERR_NOTONCHANNEL(client.GetNickname(), Cit->GetName())));
 	if (this->find_fd(client.GetFd(), Cit->GetBannedlist()) > -1)

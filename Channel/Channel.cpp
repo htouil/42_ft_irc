@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/30 16:46:42 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/23 06:24:52 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/24 01:38:38 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,6 @@
 
 Channel::Channel(std::string Name, std::string Key) : Name(Name), Key(Key), Topic(""), Limit(10000), Inv_only(false), Can_topic(false)
 {
-}
-
-bool	Channel::operator==(std::string name)
-{
-	return this->Name == name;
 }
 
 std::string	Channel::GetName()
