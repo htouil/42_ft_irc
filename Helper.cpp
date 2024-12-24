@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 20:21:59 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/23 02:55:17 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/24 19:25:49 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,4 +87,40 @@ std::string	get_cli_source(Client cli)
 	return (source);
 }
 
+std::vector<std::pair<Client, std::string> >::iterator	comparesymbol(std::vector<std::pair<Client, std::string> > &Cmbs, std::string symbol)
+{
+	std::vector<std::pair<Client, std::string> >::iterator	it;
 
+	for (it = Cmbs.begin(); it != Cmbs.end(); ++it)
+	{
+		if (it->second == symbol)
+			return (it);
+	}
+	return (Cmbs.end());
+}
+
+std::vector<std::pair<Client, std::string> >::iterator	findclient(std::vector<std::pair<Client, std::string> > &Cmbs, Client target)
+{
+	std::vector<std::pair<Client, std::string> >::iterator	it;
+
+	for (it = Cmbs.begin(); it != Cmbs.end(); ++it)
+	{
+		// std::cout << "Client " << it - Cmbs.begin() << ": " << it->second << std::endl;
+		if (it->first.GetFd() == target.GetFd())
+			return (it);
+	}
+	return (Cmbs.end());
+}
+
+
+std::vector<Channel>::iterator	findchannel(std::vector<Channel> &Chans, std::string target)
+{
+	std::vector<Channel>::iterator	it;
+
+	for (it = Chans.begin(); it != Chans.end(); ++it)
+	{
+		if (it->GetName() == target)
+			return (it);
+	}
+	return (Chans.end());
+}

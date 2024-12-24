@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/24 17:49:34 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/24 20:01:27 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,30 +159,6 @@ struct IsSymbol
 	}
 };
 
-std::vector<std::pair<Client, std::string> >::iterator	comparesymbol(std::vector<std::pair<Client, std::string> > Cmbs, std::string symbol)
-{
-	std::vector<std::pair<Client, std::string> >::iterator	it;
-
-	for (it = Cmbs.begin(); it != Cmbs.end(); ++it)
-	{
-		if (it->second == symbol)
-			return (it);
-	}
-	return (Cmbs.end());
-}
-
-std::vector<std::pair<Client, std::string> >::iterator	findclient(std::vector<std::pair<Client, std::string> > Cmbs, Client target)
-{
-	std::vector<std::pair<Client, std::string> >::iterator	it;
-
-	for (it = Cmbs.begin(); it != Cmbs.end(); ++it)
-	{
-		if (it->first.GetFd() == target.GetFd())
-			return (it);
-	}
-	return (Cmbs.end());
-}
-
 void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client &client)
 {
 	size_t						i;
@@ -204,7 +180,7 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 			std::vector<std::pair<Client, std::string> >::iterator		it1;
 			std::vector<std::pair<Client, std::string> >::iterator		it2;
 
-			it1 = findclient(Cmbs, client);
+			it1 = findclient(Cmbs, client); 
 			if (it1 != Cmbs.end())
 			{
 				size_t	k;
@@ -272,6 +248,7 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 				Cmbs.push_back(std::make_pair(client, "+"));
 				// std::cout << this->Channels[j].GetName() << " | " << Cmbs.size() << std::endl;
 				size_t	k;
+
 				for (k = 0; k < Cmbs.size(); k++)
 				{
 					// std::cout << k << ": " << Cmbs[i].GetFd() << std::endl;
@@ -308,6 +285,7 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 			ch.SetKey(keys[i]);
 		Cmbs.push_back(std::make_pair(client, "@"));
 		this->Channels.push_back(ch);
+		// std::cout << "Mit->second: " << Cmbs[0].second << std::endl;
 		send_server_msg(client, ":" + get_cli_source(client) + " JOIN :" + chans[i] + "\r\n");
 		std::ostringstream	tmp;
 		tmp << Cmbs[0].second << client.GetNickname() << "\r\n";
@@ -354,18 +332,6 @@ void	Server::privmsg(std::pair<std::string, std::vector<std::string> > args, Cli
 	}
 }
 
-std::vector<Channel>::iterator	findchannel(std::vector<Channel> Chans, std::string target)
-{
-	std::vector<Channel>::iterator	it;
-
-	for (it = Chans.begin(); it != Chans.end(); ++it)
-	{
-		if (it->GetName() == target)
-			return (it);
-	}
-	return (Chans.end());
-}
-
 void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Client &client)
 {
 	if (client.GetifReg() == false)
@@ -378,7 +344,7 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 
 	Cit = findchannel(this->Channels, args.second[0]);
 	if (Cit == this->Channels.end())
-		return (send_server_msg(client, ERR_NOSUCHCHANNEL(client.GetNickname(), Cit->GetName())));
+		return (send_server_msg(client, ERR_NOSUCHCHANNEL(client.GetNickname(), args.second[0])));
 	std::vector<std::pair<Client, std::string> > 			&Cmbs = Cit->GetMemberlist();
 	std::vector<std::pair<Client, std::string> >::iterator	Mit;
 
@@ -395,14 +361,15 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 	}
 	else
 	{
-		std::cout << "ZAB" << std::endl;
 		if (Cit->GetCantopic() == false && Mit->second != "@")
 			return (send_server_msg(client, ERR_CHANOPRIVSNEEDED(client.GetNickname(), Cit->GetName())));
 		std::string	&topic = args.second[1];
 		size_t	i;
+
 		if (topic.size() >= 2 && topic[0] == ':' && topic[1] == ':')
 			topic = topic.substr(1);
 		size_t pos;
+
 		pos = topic.find_last_not_of(" ");
 		if (pos != std::string::npos)
 			topic.erase(pos + 1);
@@ -410,7 +377,10 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 		{
 			Cit->SetTopic("");
 			for (i = 0; i < Cmbs.size(); i++)
-				send_server_msg(Cmbs[i].first, RPL_NOTOPIC(client.GetNickname(), Cit->GetName()));
+			{
+				send_server_msg(Cmbs[i].first, RPL_TOPIC(client.GetNickname(), Cit->GetName(), Cit->GetTopic()));
+				// send_server_msg(Cmbs[i].first, RPL_NOTOPIC(client.GetNickname(), Cit->GetName()));
+			}
 			return ;
 		}
 		else
@@ -425,10 +395,10 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 
 void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Client &client)
 {
-	std::cout << "Command: \'" << args.first << "\'" << std::endl;
-	for (size_t j = 0; j < args.second.size(); j++)
-		std::cout << "Arg " << j + 1 << ": \'" << args.second[j] << "\'"<< std::endl;
-	std::cout << "----------------------" << std::endl;
+	// std::cout << "Command: \'" << args.first << "\'" << std::endl;
+	// for (size_t j = 0; j < args.second.size(); j++)
+	// 	std::cout << "Arg " << j + 1 << ": \'" << args.second[j] << "\'"<< std::endl;
+	// std::cout << "----------------------" << std::endl;
 	if (args.first == "CAP" || args.first == "cap")
 		return ;
 	if (args.first == "PASS" || args.first == "pass")

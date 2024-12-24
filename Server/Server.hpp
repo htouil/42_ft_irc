@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/23 04:46:11 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/24 19:11:55 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,10 +102,12 @@ class Server
 		void		send_server_msg(Client &client, std::string err_msg);
 };
 
-// std::vector<std::string>	split_input(std::string buffer, char delimiter);
-std::vector<std::string>	split_input(std::string buffer, std::string delimiter);
-std::string					remove_crln(std::string msg);
-std::string					display_current_time();
-std::string					get_cli_source(Client cli);
+std::vector<std::string>								split_input(std::string buffer, std::string delimiter);
+std::string												remove_crln(std::string msg);
+std::string												display_current_time();
+std::string												get_cli_source(Client cli);
+std::vector<std::pair<Client, std::string> >::iterator	comparesymbol(std::vector<std::pair<Client, std::string> > &Cmbs, std::string symbol);
+std::vector<std::pair<Client, std::string> >::iterator	findclient(std::vector<std::pair<Client, std::string> > &Cmbs, Client target);
+std::vector<Channel>::iterator							findchannel(std::vector<Channel> &Chans, std::string target);
 
 #endif
