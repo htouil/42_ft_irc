@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:46:41 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/24 01:38:44 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/24 17:01:26 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,8 @@ class Client
 
 	public:
 					Client();
-		int			GetFd();
+		
+		int			GetFd() const;
 		void		SetFd(int newFd);
 		std::string	GetNickname();
 		void		SetNickname(std::string newName);

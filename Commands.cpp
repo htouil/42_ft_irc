@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/24 01:56:21 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/24 17:49:34 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,16 +159,28 @@ struct IsSymbol
 	}
 };
 
-bool comparesymbol(const std::pair<Client, std::string> &p, const std::string &target)
+std::vector<std::pair<Client, std::string> >::iterator	comparesymbol(std::vector<std::pair<Client, std::string> > Cmbs, std::string symbol)
 {
-    return p.second == target;
+	std::vector<std::pair<Client, std::string> >::iterator	it;
+
+	for (it = Cmbs.begin(); it != Cmbs.end(); ++it)
+	{
+		if (it->second == symbol)
+			return (it);
+	}
+	return (Cmbs.end());
 }
 
-bool findclient(const std::pair<Client, std::string> &c, Client target)
+std::vector<std::pair<Client, std::string> >::iterator	findclient(std::vector<std::pair<Client, std::string> > Cmbs, Client target)
 {
-	if (c.first.GetFd() == target.GetFd()) // check here
-		return true;
-	return false;
+	std::vector<std::pair<Client, std::string> >::iterator	it;
+
+	for (it = Cmbs.begin(); it != Cmbs.end(); ++it)
+	{
+		if (it->first.GetFd() == target.GetFd())
+			return (it);
+	}
+	return (Cmbs.end());
 }
 
 void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client &client)
@@ -192,7 +204,7 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 			std::vector<std::pair<Client, std::string> >::iterator		it1;
 			std::vector<std::pair<Client, std::string> >::iterator		it2;
 
-			it1 = std::find_if(Cmbs.begin(), Cmbs.end(), findclient);
+			it1 = findclient(Cmbs, client);
 			if (it1 != Cmbs.end())
 			{
 				size_t	k;
@@ -202,7 +214,7 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 				
 				if (it1->second == "@" && Cmbs.size() >= 2 && std::count_if(Cmbs.begin(), Cmbs.end(), IsSymbol("@")) == 1)
 				{
-					it2 = std::find_if(Cmbs.begin(), Cmbs.end(), comparesymbol);
+					it2 = comparesymbol(Cmbs, "+");
 					if (it2 != Cmbs.end())
 						send_server_msg(it2->first, ":ircserv MODE " + this->Channels[i].GetName() + " +o " + it2->first.GetNickname() + "\r\n");
 				}
@@ -246,7 +258,7 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 				std::vector<std::pair<Client, std::string> >			&Cmbs = this->Channels[j].GetMemberlist();
 				std::vector<std::pair<Client, std::string> >::iterator	it;
 
-				it = std::find_if(Cmbs.begin(), Cmbs.end(), findclient);
+				it = findclient(Cmbs, client);
 				if (it != Cmbs.end())
 					continue ;
 				if (this->find_fd(client.GetFd(), this->Channels[j].GetBannedlist()) > -1)
@@ -342,9 +354,16 @@ void	Server::privmsg(std::pair<std::string, std::vector<std::string> > args, Cli
 	}
 }
 
-bool	findchannel(Channel c, std::string target)
+std::vector<Channel>::iterator	findchannel(std::vector<Channel> Chans, std::string target)
 {
-	return c.GetName() == target;
+	std::vector<Channel>::iterator	it;
+
+	for (it = Chans.begin(); it != Chans.end(); ++it)
+	{
+		if (it->GetName() == target)
+			return (it);
+	}
+	return (Chans.end());
 }
 
 void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Client &client)
@@ -357,13 +376,13 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname(), "TOPIC")));
 	std::vector<Channel>::iterator	Cit;
 
-	Cit = std::find_if(this->Channels.begin(), this->Channels.end(), findchannel);
+	Cit = findchannel(this->Channels, args.second[0]);
 	if (Cit == this->Channels.end())
 		return (send_server_msg(client, ERR_NOSUCHCHANNEL(client.GetNickname(), Cit->GetName())));
 	std::vector<std::pair<Client, std::string> > 			&Cmbs = Cit->GetMemberlist();
 	std::vector<std::pair<Client, std::string> >::iterator	Mit;
 
-	Mit = std::find_if(Cmbs.begin(), Cmbs.end(), findclient);
+	Mit = findclient(Cmbs, client);
 	if (Mit == Cmbs.end())
 		return (send_server_msg(client, ERR_NOTONCHANNEL(client.GetNickname(), Cit->GetName())));
 	if (this->find_fd(client.GetFd(), Cit->GetBannedlist()) > -1)
@@ -376,6 +395,7 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 	}
 	else
 	{
+		std::cout << "ZAB" << std::endl;
 		if (Cit->GetCantopic() == false && Mit->second != "@")
 			return (send_server_msg(client, ERR_CHANOPRIVSNEEDED(client.GetNickname(), Cit->GetName())));
 		std::string	&topic = args.second[1];

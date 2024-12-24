@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 23:49:35 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/24 01:38:54 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/24 16:45:20 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ Client::Client() : Fd(-1), IPaddr(""), IfPassCorr(false), Nickname("*"), Usernam
 {
 }
 
-int	Client::GetFd()
+int	Client::GetFd() const
 {
 	return (this->Fd);
 }
