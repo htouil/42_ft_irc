@@ -6,21 +6,11 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/25 01:56:38 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/26 00:54:53 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./Server/Server.hpp"
-
-std::string	remove_crln(std::string msg)
-{
-	size_t	pos;
-
-	pos = msg.find_first_of("\r\n");
-	if (pos != std::string::npos)
-		return (msg.substr(0, pos));
-	return (msg);
-}
 
 void	Server::send_server_msg(Client &client, std::string err_msg)
 {
@@ -96,6 +86,7 @@ void	Server::user(std::pair<std::string, std::vector<std::string> > args, Client
 			return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "USER")));
 	}
 	size_t pos;
+
 	pos = args.second[3].find_last_not_of(" ");
 	if (pos != std::string::npos)
 		args.second[3].erase(pos + 1);
@@ -105,11 +96,42 @@ void	Server::user(std::pair<std::string, std::vector<std::string> > args, Client
 
 void	Server::quit(std::pair<std::string, std::vector<std::string> > args, Client &client)
 {
-	if (args.second.size() > 0)
+	if (args.second.size() > 1)
 		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname(), "QUIT")));
+	size_t	i;
+	std::string	&reason = args.second[0];
+	size_t pos;
+
+	pos = args.second[0].find_last_not_of(" ");
+	if (pos != std::string::npos)
+		args.second[0].erase(pos + 1);
+	reason = reason.substr(1);
+	send_server_msg(client, "ERROR :Closing Link: " + client.GetNickname() + " (" + reason + ")\r\n");
+	for (i = 0; i < this->Channels.size(); i++)
+	{
+		std::vector<std::pair<Client, std::string> >				&Cmbs = this->Channels[i].GetMemberlist();
+		std::vector<std::pair<Client, std::string> >::iterator		it1;
+
+		it1 = findclient(Cmbs, client); 
+		if (it1 != Cmbs.end())
+		{
+			
+			size_t	j;
+
+			if (args.second.size() == 0)
+			{
+				for (j = 0; j < Cmbs.size(); j++)
+					send_server_msg(Cmbs[i].first, ":" + get_cli_source(client) + " QUIT :Quit:\r\n");
+			}
+			else
+			{
+				for (j = 0; j < Cmbs.size(); j++)
+					send_server_msg(Cmbs[i].first, ":" + get_cli_source(client) + " QUIT :Quit: " + reason + "\r\n");
+			}
+		}
+	}
 	std::cerr << "Client: " << client.GetFd() << " Hung up." << std::endl;
-	this->Remove_Client(client.GetFd());
-	close(client.GetFd());
+	this->Remove_Client(client.GetFd()); //need to remove client from channel's members vector
 }
 
 void	Server::help(Client &client)
@@ -162,7 +184,6 @@ struct IsSymbol
 void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client &client)
 {
 	size_t						i;
-	size_t						j;
 	std::vector<std::string>	chans;
 	std::vector<std::string>	keys;
 
@@ -188,7 +209,7 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 				for (k = 0; k < Cmbs.size(); k++)
 					send_server_msg(Cmbs[k].first, ":" + get_cli_source(client) + " PART :" + this->Channels[i].GetName() + "\r\n");
 				
-				if (it1->second == "@" && Cmbs.size() >= 2 && std::count_if(Cmbs.begin(), Cmbs.end(), IsSymbol("@")) == 1)
+				if (it1->second == "@" && Cmbs.size() >= 2 && std::count_if(Cmbs.begin(), Cmbs.end(), IsSymbol("@")) == 1) // need to test
 				{
 					it2 = comparesymbol(Cmbs, "+");
 					if (it2 != Cmbs.end())
@@ -202,6 +223,7 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 		return ;
 	}
 	size_t	x,y;
+
 	x = std::count(args.second[0].begin(), args.second[0].end(), ',');
 	if (args.second.size() == 2)
 		y = std::count(args.second[1].begin(), args.second[1].end(), ',');
@@ -219,27 +241,31 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 	// std::cout << "size: " << keys.size() << std::endl;
 	// for (i = 0; i < keys.size(); i++)
 	// 	std::cout << "- \'" << keys[i] << "\'" << std::endl;
+	bool	flag;
+
 	for (i = 0; i < chans.size(); i++)
 	{
-		//check private channel &
 		if (chans[i][0] != '#' || std::count(chans[i].begin(), chans[i].end(), ' ') || std::count(chans[i].begin(), chans[i].end(), ',')
 			|| chans[i].size() < 1 || chans[i].size() > 21)
 			return (send_server_msg(client, ERR_BADCHANMASK(client.GetNickname(), chans[i])));
-		bool	flag = false;
+		flag = false;
+		size_t	j;
 		for (j = 0; j < this->Channels.size(); j++)
 		{
 			if (chans[i] == this->Channels[j].GetName())
 			{
+				// std::vector<Client>	&Bmbs = this->Channels[j].GetBannedlist();
 				std::vector<std::pair<Client, std::string> >			&Cmbs = this->Channels[j].GetMemberlist();
 				std::vector<std::pair<Client, std::string> >::iterator	it;
 
 				it = findclient(Cmbs, client);
 				if (it != Cmbs.end())
 					continue ;
+				// Bmbs.push_back(client);
 				if (this->find_fd(client.GetFd(), this->Channels[j].GetBannedlist()) > -1)
-					return (send_server_msg(client, ERR_BANNEDFROMCHAN(client.GetNickname(), chans[i]))); //need to test
+					return (send_server_msg(client, ERR_BANNEDFROMCHAN(client.GetNickname(), chans[i])));
 				if (this->Channels[j].GetifInvonly() == true)
-					return (send_server_msg(client, ERR_INVITEONLYCHAN(client.GetNickname(), chans[i]))); //need to test
+					return (send_server_msg(client, ERR_INVITEONLYCHAN(client.GetNickname(), chans[i])));
 				if (this->Channels[j].GetKey() != "" && (keys.empty() || (keys[i] != this->Channels[j].GetKey())))
 					return (send_server_msg(client, ERR_BADCHANNELKEY(client.GetNickname(), chans[i])));
 				if (Cmbs.size() == this->Channels[j].GetLimit())
@@ -412,10 +438,10 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 
 void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Client &client)
 {
-	// std::cout << "Command: \'" << args.first << "\'" << std::endl;
-	// for (size_t j = 0; j < args.second.size(); j++)
-	// 	std::cout << "Arg " << j + 1 << ": \'" << args.second[j] << "\'"<< std::endl;
-	// std::cout << "----------------------" << std::endl;
+	std::cout << "Command: \'" << args.first << "\'" << std::endl;
+	for (size_t j = 0; j < args.second.size(); j++)
+		std::cout << "Arg " << j + 1 << ": \'" << args.second[j] << "\'"<< std::endl;
+	std::cout << "----------------------" << std::endl;
 	if (args.first == "CAP" || args.first == "cap")
 		return ;
 	if (args.first == "PASS" || args.first == "pass")

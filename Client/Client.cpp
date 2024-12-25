@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 23:49:35 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/24 16:45:20 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/25 22:08:43 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,21 @@ std::string	Client::GetNickname()
 void	Client::SetNickname(std::string newName)
 {
 	this->Nickname = newName;
+}
+
+std::string	Client::GetInBuffer()
+{
+	return (this->InBuffer);
+}
+
+void		Client::SetInBuffer(std::string newBuffer)
+{
+	this->InBuffer += newBuffer;
+}
+
+void	Client::ClearBuffer()
+{
+	this->InBuffer.clear();
 }
 
 std::string	Client::GetUsername()

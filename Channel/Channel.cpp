@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/30 16:46:42 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/25 01:56:17 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/25 18:22:47 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ std::vector<std::pair<Client, std::string> >	&Channel::GetMemberlist()
 	return (this->Members);
 }
 
-std::vector<Client>	Channel::GetBannedlist()
+std::vector<Client>	&Channel::GetBannedlist()
 {
 	return (this->Banned);
 }

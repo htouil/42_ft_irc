@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 20:21:59 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/24 19:25:49 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/26 00:24:44 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,16 @@ std::vector<std::string>	split_input(std::string buffer, std::string delimiter)
 		start = end + delimiter.length();
 	}
 	return (cmd);
+}
+
+std::string	remove_crln(std::string msg)
+{
+	size_t	pos;
+
+	pos = msg.find_first_of("\r\n");
+	if (pos != std::string::npos)
+		return (msg.substr(0, pos));
+	return (msg);
 }
 
 int		Server::find_nickname(std::string to_find, std::vector<Client> list)

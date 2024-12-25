@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:46:41 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/24 17:01:26 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/25 23:41:18 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ class Client
 		
 		int			Fd;
 		std::string	IPaddr;
+		std::string	InBuffer;
 		bool		IfPassCorr;
 		std::string	InPass;
 		std::string	Nickname;
@@ -34,11 +35,13 @@ class Client
 
 	public:
 					Client();
-		
 		int			GetFd() const;
 		void		SetFd(int newFd);
 		std::string	GetNickname();
 		void		SetNickname(std::string newName);
+		std::string	GetInBuffer();
+		void		SetInBuffer(std::string newName);
+		void		ClearBuffer();
 		std::string	GetUsername();
 		void		SetUsername(std::string newName);
 		std::string	GetRealname();

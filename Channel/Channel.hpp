@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/30 16:46:37 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/24 17:32:31 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/25 18:13:11 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,13 +32,13 @@ class Channel
 		std::vector<Client>								Banned;
 
 		public:
-								Channel(std::string Name, std::string Key);
-			std::string			GetName();
-			void				SetName(std::string newName);
-			std::string			GetKey();
-			void				SetKey(std::string newKey);
-			std::string			GetTopic();
-			void				SetTopic(std::string newTopic);
+							Channel(std::string Name, std::string Key);
+			std::string		GetName();
+			void			SetName(std::string newName);
+			std::string		GetKey();
+			void			SetKey(std::string newKey);
+			std::string		GetTopic();
+			void			SetTopic(std::string newTopic);
 		size_t				GetLimit();
 		void				SetLimit(size_t newLimit);
 		bool				GetifInvonly();
@@ -46,7 +46,7 @@ class Channel
 		bool				GetCantopic();
 		void				SetCantopic(bool iftopic);
 		std::vector<std::pair<Client, std::string> >	&GetMemberlist();
-		std::vector<Client>	GetBannedlist();
+		std::vector<Client>	&GetBannedlist();
 };
 
 #endif
