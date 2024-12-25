@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/24 23:55:49 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/25 01:56:38 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,7 +208,7 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 	if (args.second.size() == 2 && x != y)
 		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "JOIN")));
 	chans = split_input(args.second[0], ",");
-	if (args.second.size() > 0 && chans.size() != x + 1) //maybe good
+	if (args.second.size() > 0 && chans.size() != x + 1)
 		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "JOIN")));
 	if (args.second.size() == 2)
 		keys = split_input(args.second[1], ",");
@@ -237,9 +237,9 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 				if (it != Cmbs.end())
 					continue ;
 				if (this->find_fd(client.GetFd(), this->Channels[j].GetBannedlist()) > -1)
-					return (send_server_msg(client, ERR_BANNEDFROMCHAN(client.GetNickname(), chans[i])));
+					return (send_server_msg(client, ERR_BANNEDFROMCHAN(client.GetNickname(), chans[i]))); //need to test
 				if (this->Channels[j].GetifInvonly() == true)
-					return (send_server_msg(client, ERR_INVITEONLYCHAN(client.GetNickname(), chans[i])));
+					return (send_server_msg(client, ERR_INVITEONLYCHAN(client.GetNickname(), chans[i]))); //need to test
 				if (this->Channels[j].GetKey() != "" && (keys.empty() || (keys[i] != this->Channels[j].GetKey())))
 					return (send_server_msg(client, ERR_BADCHANNELKEY(client.GetNickname(), chans[i])));
 				if (Cmbs.size() == this->Channels[j].GetLimit())
@@ -364,7 +364,10 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 
 	Mit = findclient(Cmbs, client);
 	if (Mit == Cmbs.end())
+	{
+		std::cout << "ZAB" << std::endl;
 		return (send_server_msg(client, ERR_NOTONCHANNEL(client.GetNickname(), Cit->GetName())));
+	}
 	if (this->find_fd(client.GetFd(), Cit->GetBannedlist()) > -1)
 		return (send_server_msg(client, ERR_BANNEDFROMCHAN(client.GetNickname(), Cit->GetName())));
 	if (args.second.size() == 1)
@@ -376,7 +379,7 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 	else
 	{
 		if (Cit->GetCantopic() == false && Mit->second != "@")
-			return (send_server_msg(client, ERR_CHANOPRIVSNEEDED(client.GetNickname(), Cit->GetName())));
+			return (send_server_msg(client, ERR_CHANOPRIVSNEEDED(client.GetNickname(), Cit->GetName()))); //need to test
 		std::string	&topic = args.second[1];
 		size_t	i;
 
