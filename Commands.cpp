@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/27 00:09:34 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/27 00:23:24 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,8 +189,17 @@ void	Server::help(Client &client)
 	help.append("  - Usage: QUIT :<message>\n");
 	help.append("  - Note: If no message is provided, a default quit message will be sent.\n");
 	help.append("\n5. JOIN:\n");
-	
-	help.append("\n6. HELP:\n");
+	help.append("  - Description: Joins a specified channel.\n");
+	help.append("  - Usage: JOIN <channel>\n");
+	help.append("\n6. PRIVMSG:\n");
+	help.append("  - Description: Sends a private message to a user or channel.\n");
+	help.append("  - Usage: PRIVMSG <recipient> <message>\n");
+	help.append("  - Note: Ensure the recipient (user or channel) is valid and connected.\n");
+	help.append("\n7. TOPIC:\n");
+	help.append("  - Description: Sets or retrieves the topic of a specified channel.\n");
+	help.append("  - Usage: TOPIC <channel> [<topic>]\n");
+	help.append("  - Note: If the topic provided is empty, the channel's topic will be set to empty.\n");
+	help.append("\n8. HELP:\n");
 	help.append("  - Description: Displays this help guide.\n");
 	help.append("  - Usage: HELP\n");
 	help.append("\n"); 
