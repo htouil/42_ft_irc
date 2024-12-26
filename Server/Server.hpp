@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aben-dhi <aben-dhi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/24 19:11:55 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/26 18:54:49 by aben-dhi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,7 @@ class Server
 		void		privmsg(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		topic(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		commands(std::pair<std::string, std::vector<std::string> > args, Client &client);
+		void		mode(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		send_server_msg(Client &client, std::string err_msg);
 };
 

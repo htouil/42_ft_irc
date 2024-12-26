@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aben-dhi <aben-dhi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/30 16:46:37 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/25 18:13:11 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/26 19:26:50 by aben-dhi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,13 +23,13 @@ class Channel
 	private:
 		std::string										Name;
 		std::string										Key;
-		// std::string										Mod;
 		std::string										Topic;
 		size_t											Limit;
 		bool											Inv_only;
 		bool											Can_topic;
 		std::vector<std::pair<Client, std::string> >	Members;
 		std::vector<Client>								Banned;
+		std::vector<std::string>						ChanMods;
 
 		public:
 							Channel(std::string Name, std::string Key);
