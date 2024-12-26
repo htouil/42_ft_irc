@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aben-dhi <aben-dhi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/26 18:54:49 by aben-dhi         ###   ########.fr       */
+/*   Updated: 2024/12/26 22:52:58 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,8 +99,9 @@ class Server
 		void		privmsg(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		topic(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		commands(std::pair<std::string, std::vector<std::string> > args, Client &client);
-		void		mode(std::pair<std::string, std::vector<std::string> > args, Client &client);
+		// void		mode(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		send_server_msg(Client &client, std::string err_msg);
+		void		send_to_all_in_chan(std::vector<std::pair<Client, std::string> > &Cmbs, std::string msg);
 };
 
 std::vector<std::string>								split_input(std::string buffer, std::string delimiter);
