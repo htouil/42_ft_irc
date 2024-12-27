@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/27 04:11:37 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/27 20:51:39 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,26 +34,25 @@
 # include "../Client/Client.hpp"
 # include "../Channel/Channel.hpp"
 
-//server messages: // recheck the first msgs formats in chatgpt
-# define USERLEN 10
-# define RPL_WELCOME(nickname, username, IPaddr) ("001 " + nickname + " :Weclome to Discord Mdere7 server " + nickname + "!" + username + "@" + IPaddr + "\r\n")
-# define ERR_NEEDMOREPARAMS(nickname, command) ("461 " + nickname +  " " + command + " :Not enough parameters.\r\n")
-# define ERR_TOOMANYPARAMS(nickname, command) ("1001 " + nickname +  " " + command + " :Too many parameters.\r\n")
-# define ERR_PASSWDMISMATCH(nickname) ("464 " + nickname + " :Password incorrect.\r\n")
-# define ERR_NOTREGISTERED(nickname) ("451 " + nickname + " :You have not registered.\r\n")
-# define ERR_ALREADYREGISTERED(nickname) ("462 " + nickname + " :You may not reregister.\r\n")
-# define ERR_NONICKNAMEGIVEN(nickname) ("431 " + nickname + " :No nickname given.\r\n")
-# define ERR_NICKNAMEINUSE(oldnick, newnick) ("433 " + oldnick + " " + newnick + " :Nickname already in use.\r\n")
-# define ERR_ERRONEUSNICKNAME(oldnick, newnick) ("432 " + oldnick + " " + newnick + " :Erroneus nickname.\r\n")
-# define ERR_INVITEONLYCHAN(nickname, channel) ("473 " + nickname + " " + channel + " :Cannot join channel (+i).\r\n")
-# define ERR_BADCHANNELKEY(nickname, channel) ("475 " + nickname + " " + channel + " :Cannot join channel (+k).\r\n")
-# define ERR_BADCHANMASK(nickname, channel) ("475 " + nickname + " " + channel + " :Invalid channel name.\r\n")
-# define ERR_CHANNELISFULL(nickname, channel) ("471 " + nickname + " " + channel + " :Cannot join channel (+l).\r\n")
+// Server replies:
+# define RPL_WELCOME(nickname, username, IPaddr) (":ircserv 001 " + nickname + " :Weclome to Discord Mdere7 server " + nickname + "!" + username + "@" + IPaddr + "\r\n")
+# define ERR_NEEDMOREPARAMS(nickname, command) (":ircserv 461 " + nickname +  " " + command + " :Not enough parameters.\r\n")
+# define ERR_TOOMANYPARAMS(nickname, command) (":ircserv 1001 " + nickname +  " " + command + " :Too many parameters.\r\n")
+# define ERR_PASSWDMISMATCH(nickname) (":ircserv 464 " + nickname + " :Password incorrect.\r\n")
+# define ERR_NOTREGISTERED(nickname) (":ircserv 451 " + nickname + " :You have not registered.\r\n")
+# define ERR_ALREADYREGISTERED(nickname) (":ircserv 462 " + nickname + " :You may not reregister.\r\n")
+# define ERR_NONICKNAMEGIVEN(nickname) (":ircserv 431 " + nickname + " :No nickname given.\r\n")
+# define ERR_NICKNAMEINUSE(oldnick, newnick) (":ircserv 433 " + oldnick + " " + newnick + " :Nickname already in use.\r\n")
+# define ERR_ERRONEUSNICKNAME(oldnick, newnick) (":ircserv 432 " + oldnick + " " + newnick + " :Erroneus nickname.\r\n")
+# define ERR_INVITEONLYCHAN(nickname, channel) (":ircserv 473 " + nickname + " " + channel + " :Cannot join channel (+i).\r\n")
+# define ERR_BADCHANNELKEY(nickname, channel) (":ircserv 475 " + nickname + " " + channel + " :Cannot join channel (+k).\r\n")
+# define ERR_BADCHANMASK(nickname, channel) (":ircserv 475 " + nickname + " " + channel + " :Invalid channel name.\r\n")
+# define ERR_CHANNELISFULL(nickname, channel) (":ircserv 471 " + nickname + " " + channel + " :Cannot join channel (+l).\r\n")
 # define RPL_TOPIC(nickname, channel, topic) (":ircserv 332 " + nickname + " " + channel + " :" + topic + "\r\n")
 # define RPL_NOTOPIC(nickname, channel) (":ircserv 331 " + nickname + " " + channel + " :No topic is set\r\n")
 # define RPL_NAMREPLY(nickname, channel, member) (":ircserv 353 " + nickname + " = " + channel + " :" + member)
 # define RPL_ENDOFNAMES(nickname, channel) (":ircserv 366 " + nickname + " " + channel + " :End of /NAMES list.\r\n")
-# define ERR_UNKNOWNERROR(nickname, command) ("400 " + nickname + " " + command + " :Command needs to end with a pair of CR('\\r') and NL('\\n').\r\n")
+# define ERR_UNKNOWNERROR(nickname, command) (":ircserv 400 " + nickname + " " + command + " :Command needs to end with a pair of CR('\\r') and NL('\\n').\r\n")
 # define ERR_NOSUCHNICK(nickname, command, type) (":ircserv 401 " + nickname + " " + command + " :No such " + type + "\r\n")
 # define ERR_NOTONCHANNEL(nickname, channel) (":ircserv 442 " + nickname + " " + channel + " :You're not on that channel\r\n")
 # define ERR_NOSUCHCHANNEL(nickname, channel) (":ircserv 403 " + nickname + " " + channel + " :No such channel\r\n")

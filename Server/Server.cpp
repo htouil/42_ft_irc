@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:45:57 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/26 22:46:49 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/27 22:39:28 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,49 +149,81 @@ void	Server::receive_request(int clifd)
 		if (buffer.empty())
 			return ;
 		pos = this->find_fd(clifd, this->Clients);
-		this->Clients[pos].SetInBuffer(buffer);
-		// std::cout << "Buffer: \'" << this->Clients[pos].GetInBuffer() << "\'" << std::endl;
-		// if (buffer[buffer.size() - 2] != '\r' || buffer[buffer.size() - 1] != '\n')
-		if ((this->Clients[pos].GetInBuffer()).find_first_of("\r\n") != std::string::npos)
-		{
+		// this->Clients[pos].SetInBuffer(buffer);
+		// // std::cout << "Buffer: \'" << this->Clients[pos].GetInBuffer() << "\'" << std::endl;
+		// // if (buffer[buffer.size() - 2] != '\r' || buffer[buffer.size() - 1] != '\n')
+		// if ((this->Clients[pos].GetInBuffer()).find_first_of("\r\n") != std::string::npos)
+		// {
 			// if ((this->Clients[pos].GetInBuffer()).find_first_of("\r") != std::string::npos)
 			// {
-				buffer = remove_crln(buffer);
-				if (pos != -1) // && this->Clients[pos].GetifReg() == false
-				{
-					// std::cout << "size: " << (this->Clients[pos].GetInBuffer()).size() << std::endl;
-					// for (size_t j = 0; j < (this->Clients[pos].GetInBuffer()).size(); j++)
-					// 	std::cout << (this->Clients[pos].GetInBuffer())[j] << " , ";
-					cmds = split_input(this->Clients[pos].GetInBuffer(), "\r\n");
-					for (size_t j = 0; j < cmds.size(); j++)
-					{
+				// buffer = remove_crln(buffer);
+				// if (pos != -1) // && this->Clients[pos].GetifReg() == false
+				// {
+				// 	// std::cout << "size: " << (this->Clients[pos].GetInBuffer()).size() << std::endl;
+				// 	// for (size_t j = 0; j < (this->Clients[pos].GetInBuffer()).size(); j++)
+				// 	// 	std::cout << (this->Clients[pos].GetInBuffer())[j] << " , ";
+				// 	cmds = split_input(this->Clients[pos].GetInBuffer(), "\r\n");
+				// 	for (size_t j = 0; j < cmds.size(); j++)
+				// 	{
 						// std::cout << "Cmd " << j + 1 << ": \'" << cmds[j] << "\'"<< std::endl;
 						// std::cout << "----------------------" << std::endl;
 						// std::cout << "Command: \'" << args.first << "\'" << std::endl;
 						// for (size_t j = 0; j < args.second.size(); j++)
 						// 	std::cout << "Arg " << j + 1 << ": \'" << args.second[j] << "\'"<< std::endl;
 						// std::cout << "----------------------" << std::endl;
-						// std::vector<std::time_t>	&CperT = this->Clients[pos].GetCperT();
-						// if (!cmds[j].empty())
-						// {
-						// 	CperT.push_back(std::time(NULL));
-						// 	if (CperT.size() >= 3 && CperT[2] - CperT[0] > 5)
-						// 	{
+				// 		// std::vector<std::time_t>	&CperT = this->Clients[pos].GetCperT();
+				// 		// if (!cmds[j].empty())
+				// 		// {
+				// 		// 	CperT.push_back(std::time(NULL));
+				// 		// 	if (CperT.size() >= 3 && CperT[2] - CperT[0] > 5)
+				// 		// 	{
 								
-						// 	}
-						// }
-						// if ((this->Clients[pos].GetInBuffer()).find_first_of("\r") == std::string::npos)
-						// 	return (send_server_msg(this->Clients[pos], ERR_UNKNOWNERROR(this->Clients[pos].GetNickname(), "\'" + (this->Clients[pos].GetInBuffer()).substr(0, (this->Clients[pos].GetInBuffer()).size() - 1) + "\'")));
+				// 		// 	}
+				// 		// }
+				// 		// if ((this->Clients[pos].GetInBuffer()).find_first_of("\r") == std::string::npos)
+				// 		// 	return (send_server_msg(this->Clients[pos], ERR_UNKNOWNERROR(this->Clients[pos].GetNickname(), "\'" + (this->Clients[pos].GetInBuffer()).substr(0, (this->Clients[pos].GetInBuffer()).size() - 1) + "\'")));
+				// 		args = extract_args(cmds[j]); 
+				// 		commands(args, this->Clients[pos]);
+				// 		memset(tmp, 0, sizeof(tmp));
+				// 		this->Clients[pos].ClearBuffer();
+				// 	}
+				// }
+		// 	// }
+		// }
+		if (pos != -1)
+		{
+			size_t	posa;
+
+			this->Clients[pos].SetInBuffer(buffer);
+			std::string	InBuffer = this->Clients[pos].GetInBuffer();
+
+			for (size_t f = 0; f < InBuffer.size(); f++)
+				std::cout << (int)InBuffer[f] << ",";
+			std::cout << std::endl;
+			posa = InBuffer.find(4);
+			if (posa != std::string::npos)
+				return ;
+			posa = InBuffer.find('\n');
+			if (posa != std::string::npos)
+			{
+				if (InBuffer[posa - 1] == '\r')
+				{
+					buffer = remove_crln(InBuffer);
+					cmds = split_input(InBuffer, "\r\n");
+					for (size_t j = 0; j < cmds.size(); j++)
+					{
 						args = extract_args(cmds[j]); 
 						commands(args, this->Clients[pos]);
 						memset(tmp, 0, sizeof(tmp));
 						this->Clients[pos].ClearBuffer();
+						std::cout << "ZEBBI" << std::endl;
+						return ;
 					}
 				}
-			// }
+				// else
+				// 	return (send_server_msg(this->Clients[pos], ERR_UNKNOWNERROR(this->Clients[pos].GetNickname(), "\'" + InBuffer.substr(0, InBuffer.size() - 1) + "\'")));
+			}
 		}
-		else
-			return ;
 	}
 }
 
