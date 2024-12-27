@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aben-dhi <aben-dhi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/30 16:46:37 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/26 19:26:50 by aben-dhi         ###   ########.fr       */
+/*   Updated: 2024/12/27 01:10:43 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ class Channel
 		bool											Inv_only;
 		bool											Can_topic;
 		std::vector<std::pair<Client, std::string> >	Members;
-		std::vector<Client>								Banned;
 		std::vector<std::string>						ChanMods;
 
 		public:
@@ -46,7 +45,6 @@ class Channel
 		bool				GetCantopic();
 		void				SetCantopic(bool iftopic);
 		std::vector<std::pair<Client, std::string> >	&GetMemberlist();
-		std::vector<Client>	&GetBannedlist();
 };
 
 #endif

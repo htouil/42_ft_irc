@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/27 00:23:24 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/27 01:10:27 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,7 @@ void	Server::user(std::pair<std::string, std::vector<std::string> > args, Client
 
 struct IsSymbol
 {
-	std::string symbol_;
+	std::string symbol_;	
 
 	IsSymbol(std::string symbol) : symbol_(symbol) {}
 	bool operator()(std::pair<Client, std::string> &member)
@@ -288,8 +288,6 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 				it = findclient(Cmbs, client);
 				if (it != Cmbs.end())
 					continue ;
-				if (this->find_fd(client.GetFd(), this->Channels[j].GetBannedlist()) > -1)
-					return (send_server_msg(client, ERR_BANNEDFROMCHAN(client.GetNickname(), chans[i])));
 				if (this->Channels[j].GetifInvonly() == true)
 					return (send_server_msg(client, ERR_INVITEONLYCHAN(client.GetNickname(), chans[i])));
 				if (this->Channels[j].GetKey() != "" && (keys.empty() || (keys[i] != this->Channels[j].GetKey())))
@@ -416,8 +414,6 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 	Mit = findclient(Cmbs, client);
 	if (Mit == Cmbs.end())
 		return (send_server_msg(client, ERR_NOTONCHANNEL(client.GetNickname(), Cit->GetName())));
-	if (this->find_fd(client.GetFd(), Cit->GetBannedlist()) > -1)
-		return (send_server_msg(client, ERR_BANNEDFROMCHAN(client.GetNickname(), Cit->GetName())));
 	if (args.second.size() == 1)
 	{
 		if (Cit->GetTopic() == "")
@@ -437,8 +433,6 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 		pos = topic.find_last_not_of(" ");
 		if (pos != std::string::npos)
 			topic.erase(pos + 1);
-		// size_t	i;
-
 		if (topic.size() == 1)
 			Cit->SetTopic("");
 		else

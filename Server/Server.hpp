@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/26 22:52:58 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/27 01:13:23 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,6 @@
 # define ERR_NONICKNAMEGIVEN(nickname) ("431 " + nickname + " :No nickname given.\r\n")
 # define ERR_NICKNAMEINUSE(oldnick, newnick) ("433 " + oldnick + " " + newnick + " :Nickname already in use.\r\n")
 # define ERR_ERRONEUSNICKNAME(oldnick, newnick) ("432 " + oldnick + " " + newnick + " :Erroneus nickname.\r\n")
-# define ERR_BANNEDFROMCHAN(nickname, channel) ("474 " + nickname + " " + channel + " :Cannot join channel (+b).\r\n")
 # define ERR_INVITEONLYCHAN(nickname, channel) ("473 " + nickname + " " + channel + " :Cannot join channel (+i).\r\n")
 # define ERR_BADCHANNELKEY(nickname, channel) ("475 " + nickname + " " + channel + " :Cannot join channel (+k).\r\n")
 # define ERR_BADCHANMASK(nickname, channel) ("475 " + nickname + " " + channel + " :Invalid channel name.\r\n")
