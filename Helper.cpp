@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 20:21:59 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/26 00:24:44 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/27 03:55:02 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,6 @@ std::vector<std::pair<Client, std::string> >::iterator	findclient(std::vector<st
 
 	for (it = Cmbs.begin(); it != Cmbs.end(); ++it)
 	{
-		// std::cout << "Client " << it - Cmbs.begin() << ": " << it->second << std::endl;
 		if (it->first.GetFd() == target.GetFd())
 			return (it);
 	}

@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/27 01:13:23 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/27 04:11:37 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,8 @@
 # define ERR_NOTONCHANNEL(nickname, channel) (":ircserv 442 " + nickname + " " + channel + " :You're not on that channel\r\n")
 # define ERR_NOSUCHCHANNEL(nickname, channel) (":ircserv 403 " + nickname + " " + channel + " :No such channel\r\n")
 # define ERR_CHANOPRIVSNEEDED(nickname, channel) (":ircserv 482 " + nickname + " " + channel + " :You're not a channel operator\r\n")
-
-
+# define ERR_NOTEXTTOSEND(nickname) ("ircserv 412 " + nickname + " :No text to send\r\n")
+# define ERR_NORECIPIENT(nickname) ("ircserv 411 " + nickname + " :No recipient given (PRIVMSG)\r\n")
 
 
 

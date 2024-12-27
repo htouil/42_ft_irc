@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/27 01:10:27 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/27 04:52:45 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,7 +127,7 @@ void	Server::quit(std::pair<std::string, std::vector<std::string> > args, Client
 	if (reason[0] == ':' && reason[1] == ':')
 		reason = reason.substr(1);
 	reason = reason.substr(1);
-	std::cout << "reason: " << reason << std::endl;
+	// std::cout << "reason: " << reason << std::endl;
 	send_server_msg(client, "ERROR :Closing Link: " + client.GetNickname() + " (" + reason + ")\r\n");
 	for (i = 0; i < this->Channels.size(); i++)
 	{
@@ -138,7 +138,7 @@ void	Server::quit(std::pair<std::string, std::vector<std::string> > args, Client
 		it1 = findclient(Cmbs, client); 
 		if (it1 != Cmbs.end())
 		{
-			this->send_to_all_in_chan(Cmbs, ":" + get_cli_source(client) + " QUIT :Quit: " + reason + "\r\n");
+			send_to_all_in_chan(Cmbs, ":" + get_cli_source(client) + " QUIT :Quit: " + reason + "\r\n");
 			if (it1->second == "@" && Cmbs.size() >= 2 && std::count_if(Cmbs.begin(), Cmbs.end(), IsSymbol("@")) == 1)
 			{
 				it2 = comparesymbol(Cmbs, "+");
@@ -235,7 +235,7 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 			it1 = findclient(Cmbs, client); 
 			if (it1 != Cmbs.end())
 			{
-				this->send_to_all_in_chan(Cmbs, ":" + get_cli_source(client) + " PART :" + this->Channels[i].GetName() + "\r\n");
+				send_to_all_in_chan(Cmbs, ":" + get_cli_source(client) + " PART :" + this->Channels[i].GetName() + "\r\n");
 				if (it1->second == "@" && Cmbs.size() >= 2 && std::count_if(Cmbs.begin(), Cmbs.end(), IsSymbol("@")) == 1)
 				{
 					it2 = comparesymbol(Cmbs, "+");
@@ -295,7 +295,7 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 				if (Cmbs.size() == this->Channels[j].GetLimit())
 					return (send_server_msg(client, ERR_CHANNELISFULL(client.GetNickname(), chans[i])));
 				Cmbs.push_back(std::make_pair(client, "+"));
-				this->send_to_all_in_chan(Cmbs, ":" + get_cli_source(client) + " JOIN :" + chans[i] + "\r\n");
+				send_to_all_in_chan(Cmbs, ":" + get_cli_source(client) + " JOIN :" + chans[i] + "\r\n");
 				// if (this->Channels[j].GetTopic() != "")
 				send_server_msg(client, RPL_TOPIC(client.GetNickname(), this->Channels[j].GetName(), this->Channels[j].GetTopic()));
 				// for (k = 0; k < Cmbs.size(); k++)
@@ -368,30 +368,63 @@ void	Server::privmsg(std::pair<std::string, std::vector<std::string> > args, Cli
 		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "PRIVMSG")));
 	if (args.second.size() > 2)
 		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname(), "PRIVMSG")));
+	std::string	&message = args.second[1];
+	size_t posa;
+
+	posa = args.second[1].find_last_not_of(" ");
+	if (posa != std::string::npos)
+		args.second[0].erase(posa + 1);
+	if (message[0] == ':' && message[1] == ':')
+		message = message.substr(1);
+	message = message.substr(1);
+	if (message.empty())
+		return (send_server_msg(client, ERR_NOTEXTTOSEND(client.GetNickname())));
 	targets = split_input(args.second[0], ",");
 	std::cout << "size: " << targets.size() << std::endl;
-	// size_t	j;
-	// for (j = 0; j < targets.size(); j++)
-	// 	std::cout << "- \'" << targets[j] << "\'" << std::endl;
+	if (targets.empty())
+		return (send_server_msg(client, ERR_NORECIPIENT(client.GetNickname())));
+	size_t	j;
+	for (j = 0; j < targets.size(); j++)
+		std::cout << "- \'" << targets[j] << "\'" << std::endl;
 	x = std::count(args.second[0].begin(), args.second[0].end(), ',');
 	if (targets.size() != x + 1) // recheck
 		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "PRIVMSG")));
-	// if (args.second[1][0] != ':')
-	// 	return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "PRIVMSG")));
 	size_t	i;
 	for (i = 0; i < targets.size(); i++)
 	{
 		if (std::count(targets.begin(), targets.begin() + i, targets[i]) > 1)
 			continue ;
-		int	pos;
-		pos = this->find_nickname(targets[i], this->Clients);
-		if (pos == -1)
+		if (targets[i][0] == '#')
 		{
-			send_server_msg(client, ERR_NOSUCHNICK(targets[i], "PRIVMSG", "nick"));
-			continue ;
+			std::vector<Channel>::iterator	it;
+
+			it = findchannel(this->Channels, targets[i]);
+			if (it == this->Channels.end())
+				send_server_msg(client, ERR_NOSUCHCHANNEL(client.GetNickname(), args.second[0]));
+			else
+			{
+				std::vector<std::pair<Client, std::string> >	&Cmbs = it->GetMemberlist();
+
+				size_t	i;
+
+				for (i = 0; i < Cmbs.size(); i++)
+				{
+					if (client.GetFd() == Cmbs[i].first.GetFd())
+						continue ;
+					send_server_msg(Cmbs[i].first, ":" + get_cli_source(client) + " PRIVMSG " + it->GetName() + " :" + message + "\r\n");
+				}
+			}
 		}
 		else
-			send_server_msg(this->Clients[pos], ":" + get_cli_source(client) + " PRIVMSG " + this->Clients[pos].GetNickname() + " " + args.second[1] + "\r\n");
+		{
+			int	pos;
+
+			pos = this->find_nickname(targets[i], this->Clients);
+			if (pos == -1)
+				send_server_msg(client, ERR_NOSUCHNICK(targets[i], "PRIVMSG", "nick"));
+			else
+				send_server_msg(this->Clients[pos], ":" + get_cli_source(client) + " PRIVMSG " + this->Clients[pos].GetNickname() + " :" + message + "\r\n");
+		}
 	}
 }
 
@@ -437,7 +470,7 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 			Cit->SetTopic("");
 		else
 			Cit->SetTopic(topic.substr(1));
-		this->send_to_all_in_chan(Cmbs, RPL_TOPIC(client.GetNickname(), Cit->GetName(), Cit->GetTopic()));
+		send_to_all_in_chan(Cmbs, RPL_TOPIC(client.GetNickname(), Cit->GetName(), Cit->GetTopic()));
 	}
 }
 
