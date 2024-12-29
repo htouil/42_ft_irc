@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/27 04:52:45 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/30 00:07:41 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -526,10 +526,10 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 
 void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Client &client)
 {
-	std::cout << "Command: \'" << args.first << "\'" << std::endl;
-	for (size_t j = 0; j < args.second.size(); j++)
-		std::cout << "Arg " << j + 1 << ": \'" << args.second[j] << "\'"<< std::endl;
-	std::cout << "----------------------" << std::endl;
+	// std::cout << "Command: \'" << args.first << "\'" << std::endl;
+	// for (size_t j = 0; j < args.second.size(); j++)
+	// 	std::cout << "Arg " << j + 1 << ": \'" << args.second[j] << "\'"<< std::endl;
+	// std::cout << "----------------------" << std::endl;
 	if (args.first == "CAP" || args.first == "cap")
 		return ;
 	if (args.first == "PASS" || args.first == "pass")
