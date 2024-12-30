@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
+/*   By: amirabendhia <amirabendhia@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/27 20:51:39 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/30 04:49:59 by amirabendhi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@
 # define ERR_ERRONEUSNICKNAME(oldnick, newnick) (":ircserv 432 " + oldnick + " " + newnick + " :Erroneus nickname.\r\n")
 # define ERR_INVITEONLYCHAN(nickname, channel) (":ircserv 473 " + nickname + " " + channel + " :Cannot join channel (+i).\r\n")
 # define ERR_BADCHANNELKEY(nickname, channel) (":ircserv 475 " + nickname + " " + channel + " :Cannot join channel (+k).\r\n")
-# define ERR_BADCHANMASK(nickname, channel) (":ircserv 475 " + nickname + " " + channel + " :Invalid channel name.\r\n")
+# define ERR_BADCHANMASK(nickname, channel) (":ircserv 476 " + nickname + " " + channel + " :Invalid channel name.\r\n")
 # define ERR_CHANNELISFULL(nickname, channel) (":ircserv 471 " + nickname + " " + channel + " :Cannot join channel (+l).\r\n")
 # define RPL_TOPIC(nickname, channel, topic) (":ircserv 332 " + nickname + " " + channel + " :" + topic + "\r\n")
 # define RPL_NOTOPIC(nickname, channel) (":ircserv 331 " + nickname + " " + channel + " :No topic is set\r\n")
@@ -97,7 +97,7 @@ class Server
 		void		privmsg(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		topic(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		commands(std::pair<std::string, std::vector<std::string> > args, Client &client);
-		// void		mode(std::pair<std::string, std::vector<std::string> > args, Client &client);
+		void		mode(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		send_server_msg(Client &client, std::string err_msg);
 		void		send_to_all_in_chan(std::vector<std::pair<Client, std::string> > &Cmbs, std::string msg);
 };

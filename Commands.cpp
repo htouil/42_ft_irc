@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
+/*   By: amirabendhia <amirabendhia@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/30 00:07:41 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/30 04:52:51 by amirabendhi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -474,55 +474,72 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 	}
 }
 
-// void	Server::mode(std::pair<std::string, std::vector<std::string> > args, Client &client)
-// {
-// 	if (client.GetifReg() == false)
-// 		return (send_server_msg(client, ERR_NOTREGISTERED(client.GetNickname())));
-// 	if (args.second.size() < 1)
-// 		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "MODE")));
-// 	if (args.second.size() > 2)
-// 		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname(), "MODE")));
-// 	std::string NameChannel = args.second[0];
-// 	std::string modeC = args.second[1];
-// 	std::vector<Channel>::iterator	Cit;
-// 	Cit = findchannel(this->Channels, NameChannel);
-// 	if (Cit == this->Channels.end())
-// 		return (send_server_msg(client, ERR_NOSUCHCHANNEL(client.GetNickname(), NameChannel)));
-// 	std::vector<std::pair<Client, std::string> > 			&Cmbs = Cit->GetMemberlist();
-// 	std::vector<std::pair<Client, std::string> >::iterator	Mit;
-// 	Mit = findclient(Cmbs, client);
-// 	int addMode = -1;
-// 	for (size_t j = 0; j < modeC.size(); ++j)
-// 	{
-// 		switch (modeC[j])
-// 		{
-// 		case '+':
-// 			addMode = 1;
-// 			break;
-// 		case '-':
-// 			addMode = 0;
-// 			break;
-// 		case 'i':
-// 			if (addMode == 1)
-// 			{
-// 				if (Mit->second != "@")
-// 					return (send_server_msg(client, ERR_CHANOPRIVSNEEDED(client.GetNickname(), Cit->GetName())));
-// 				Cit->SetifInvonly(true);
-// 				for (k = 0; k < Cmbs.size(); k++)
-// 				{
-// 					if (Cmbs[k].second == "@")
-// 						send_server_msg(Cmbs[k].first, ":" + client.GetNickname() + " MODE " + Cit->GetName() + " +i\r\n");
-// 				}
+void	Server::mode(std::pair<std::string, std::vector<std::string> > args, Client &client)
+{
+	if (client.GetifReg() == false)
+		return (send_server_msg(client, ERR_NOTREGISTERED(client.GetNickname())));
+	if (args.second.size() < 1)
+		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "MODE")));
+	if (args.second.size() > 2)
+		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname(), "MODE")));
+	std::string NameChannel = args.second[0];
+	std::string modeC = args.second[1];
+	std::vector<Channel>::iterator	Cit;
+	Cit = findchannel(this->Channels, NameChannel);
+	if (Cit == this->Channels.end())
+		return (send_server_msg(client, ERR_NOSUCHCHANNEL(client.GetNickname(), NameChannel)));
+	std::vector<std::pair<Client, std::string> > 			&Cmbs = Cit->GetMemberlist();
+	std::vector<std::pair<Client, std::string> >::iterator	Mit;
+	Mit = findclient(Cmbs, client);
+	int addMode = -1;
+	for (size_t j = 0; j < modeC.size(); ++j)
+	{
+		switch (modeC[j])
+		{
+		case '+':
+			addMode = 1;
+			break;
+		case '-':
+			addMode = 0;
+			break;
+		case 'i':
+			if (addMode == 1)
+			{
+				if (Mit->second != "@")
+					return (send_server_msg(client, ERR_CHANOPRIVSNEEDED(client.GetNickname(), Cit->GetName())));
+				Cit->Setifinvonly(true);
+				int k;
+				for (k = 0; k < Cmbs.size(); k++)
+				{
+					if (Cmbs[k].second == "@")
+						send_server_msg(Cmbs[k].first, ":" + client.GetNickname() + " MODE " + Cit->GetName() + " +i\r\n");
+				}
 				
-// 			}
-// 			else
-// 				Cit->SetifInvonly(false);
-// 			break;
-// 		}
-// 	}
+			}
+			else
+				Cit->Setifinvonly(false);
+			break;
+		case 't':
+			if (addMode == 1)
+			{
+				if (Mit->second != "@")
+					return (send_server_msg(client, ERR_CHANOPRIVSNEEDED(client.GetNickname(), Cit->GetName())));
+				Cit->SetCantopic(true);
+				int k;
+				for (k = 0; k < Cmbs.size(); k++)
+				{
+					if (Cmbs[k].second == "@" || Cmbs[k].second == "+")
+						send_server_msg(Cmbs[k].first, ":" + client.GetNickname() + " MODE " + Cit->GetName() + " +t\r\n");
+				}
+			}
+			else
+				Cit->SetCantopic(false);
+			break;
+		}
+	}
 	
 	
-// }
+}
 
 void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Client &client)
 {
