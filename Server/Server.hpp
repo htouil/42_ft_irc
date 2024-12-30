@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amirabendhia <amirabendhia@student.42.f    +#+  +:+       +#+        */
+/*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/30 06:18:25 by amirabendhi      ###   ########.fr       */
+/*   Updated: 2024/12/31 00:54:28 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,10 +37,10 @@
 
 // Server replies:
 # define RPL_WELCOME(nickname, username, IPaddr) (":ircserv 001 " + nickname + " :Weclome to Discord Mdere7 server " + nickname + "!" + username + "@" + IPaddr + "\r\n")
-# define ERR_NEEDMOREPARAMS(nickname, command) (":ircserv 461 " + nickname +  " " + command + " :Not enough parameters.\r\n")
-# define ERR_TOOMANYPARAMS(nickname, command) (":ircserv 1001 " + nickname +  " " + command + " :Too many parameters.\r\n")
+# define ERR_NEEDMOREPARAMS(command) (":ircserv 461 " + command + " :Not enough parameters.\r\n")
+# define ERR_TOOMANYPARAMS(command) (":ircserv 1001 " + command + " :Too many parameters.\r\n")
 # define ERR_PASSWDMISMATCH(nickname) (":ircserv 464 " + nickname + " :Password incorrect.\r\n")
-# define ERR_NOTREGISTERED(nickname) (":ircserv 451 " + nickname + " :You have not registered.\r\n")
+# define ERR_NOTREGISTERED(command) (":ircserv 451 " + command + " :You have not registered.\r\n")
 # define ERR_ALREADYREGISTERED(nickname) (":ircserv 462 " + nickname + " :You may not reregister.\r\n")
 # define ERR_NONICKNAMEGIVEN(nickname) (":ircserv 431 " + nickname + " :No nickname given.\r\n")
 # define ERR_NICKNAMEINUSE(oldnick, newnick) (":ircserv 433 " + oldnick + " " + newnick + " :Nickname already in use.\r\n")
@@ -97,9 +97,11 @@ class Server
 		void		help(Client &client);
 		void		join(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		privmsg(std::pair<std::string, std::vector<std::string> > args, Client &client);
+		void		kick(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		topic(std::pair<std::string, std::vector<std::string> > args, Client &client);
-		void		commands(std::pair<std::string, std::vector<std::string> > args, Client &client);
+		void		part(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		mode(std::pair<std::string, std::vector<std::string> > args, Client &client);
+		void		commands(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		send_server_msg(Client &client, std::string err_msg);
 		void		send_to_all_in_chan(std::vector<std::pair<Client, std::string> > &Cmbs, std::string msg);
 };
