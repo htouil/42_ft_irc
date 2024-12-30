@@ -6,7 +6,7 @@
 /*   By: amirabendhia <amirabendhia@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/30 05:06:32 by amirabendhi      ###   ########.fr       */
+/*   Updated: 2024/12/30 06:18:25 by amirabendhi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@
 # include <ctime>
 # include <iomanip>
 # include <algorithm>
+# include <cerrno>
 # include "../Client/Client.hpp"
 # include "../Channel/Channel.hpp"
 

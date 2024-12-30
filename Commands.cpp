@@ -6,7 +6,7 @@
 /*   By: amirabendhia <amirabendhia@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/30 05:32:08 by amirabendhi      ###   ########.fr       */
+/*   Updated: 2024/12/30 06:26:24 by amirabendhi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -346,7 +346,7 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 					send_server_msg(Cmbs[k].first, RPL_NAMREPLY(Cmbs[k].first.GetNickname(), (this->Channels[j].GetName()), ops.str() + usrs.str()));
 					send_server_msg(Cmbs[k].first, RPL_ENDOFNAMES(Cmbs[k].first.GetNickname(), this->Channels[j].GetName()));	
 				}
-				std::cout << "Channel size: " << Cmbs.size() << std::endl;
+				// std::cout << "Channel size: " << Cmbs.size() << std::endl;
 				flag = true;
 				break ;
 			}
@@ -383,23 +383,23 @@ void	Server::privmsg(std::pair<std::string, std::vector<std::string> > args, Cli
 	std::string	&message = args.second[1];
 	size_t posa;
 
-	posa = args.second[1].find_last_not_of(" ");
+	posa = message.find_last_not_of(" ");
 	if (posa != std::string::npos)
-		args.second[0].erase(posa + 1);
+		message.erase(posa + 1);
 	if (message[0] == ':' && message[1] == ':')
 		message = message.substr(1);
 	message = message.substr(1);
 	if (message.empty())
 		return (send_server_msg(client, ERR_NOTEXTTOSEND(client.GetNickname())));
 	targets = split_input(args.second[0], ",");
-	std::cout << "size: " << targets.size() << std::endl;
+	// std::cout << "size: " << targets.size() << std::endl;
 	if (targets.empty())
 		return (send_server_msg(client, ERR_NORECIPIENT(client.GetNickname())));
 	size_t	j;
-	for (j = 0; j < targets.size(); j++)
-		std::cout << "- \'" << targets[j] << "\'" << std::endl;
+	// for (j = 0; j < targets.size(); j++)
+	// 	std::cout << "- \'" << targets[j] << "\'" << std::endl;
 	x = std::count(args.second[0].begin(), args.second[0].end(), ',');
-	if (targets.size() != x + 1) // recheck
+	if (targets.size() != x + 1)
 		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "PRIVMSG")));
 	size_t	i;
 	for (i = 0; i < targets.size(); i++)
@@ -570,7 +570,7 @@ void	Server::mode(std::pair<std::string, std::vector<std::string> > args, Client
 				}
 				break;
 			case 'l':
-				Cit->SetLimit(adding ? std::stoi(parameter) : 0);
+				Cit->SetLimit(adding ? std::atoi(parameter.c_str()) : 0);
 				send_to_all_in_chan(Cmbs, ":" + get_cli_source(client) + " MODE " + Cit->GetName() + 
 					" " + (adding ? "+" : "-") + "l " + parameter + "\r\n");
 				break;

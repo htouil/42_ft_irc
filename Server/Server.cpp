@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
+/*   By: amirabendhia <amirabendhia@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:45:57 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/30 00:46:58 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/30 06:20:45 by amirabendhi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,7 +201,7 @@ void	Server::receive_request(int clifd)
 				{
 					// for (size_t f = 0; f < InBuffer.size(); f++)
 					// 	std::cout << (int)InBuffer[f] << ",";
-					std::cout << std::endl;
+					// std::cout << std::endl;
 					buffer = remove_crln(InBuffer);
 					cmds = split_input(InBuffer, "\r\n");
 					// for (size_t j = 0; j < cmds.size(); j++)
