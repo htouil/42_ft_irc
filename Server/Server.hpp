@@ -6,7 +6,7 @@
 /*   By: amirabendhia <amirabendhia@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/30 04:49:59 by amirabendhi      ###   ########.fr       */
+/*   Updated: 2024/12/30 05:06:32 by amirabendhi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@
 # define ERR_CHANOPRIVSNEEDED(nickname, channel) (":ircserv 482 " + nickname + " " + channel + " :You're not a channel operator\r\n")
 # define ERR_NOTEXTTOSEND(nickname) ("ircserv 412 " + nickname + " :No text to send\r\n")
 # define ERR_NORECIPIENT(nickname) ("ircserv 411 " + nickname + " :No recipient given (PRIVMSG)\r\n")
+# define ERR_UNKNOWNMODE(nickname, mode) ("ircserv 472 " + nickname + " " + mode + " :is unknown mode char to me\r\n")
 
 
 

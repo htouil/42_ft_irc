@@ -6,27 +6,39 @@
 /*   By: amirabendhia <amirabendhia@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/30 04:52:51 by amirabendhi      ###   ########.fr       */
+/*   Updated: 2024/12/30 05:32:08 by amirabendhi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./Server/Server.hpp"
 
+class NicknameMatcher {
+	std::string nickname_;
+public:
+	NicknameMatcher(const std::string& nick) : nickname_(nick) {}
+	bool operator()(const std::pair<Client, std::string>& member) const {
+		return member.first.GetNickname() == nickname_;
+	}
+};
+
 void	Server::send_server_msg(Client &client, std::string msg)
 {
-	std::string	tmp;
-
-	tmp = display_current_time() + msg;
-	if (send(client.GetFd(), (msg).c_str(), msg.size(), 0) == -1)
-		std::cerr << "Failed to send to client " << client.GetFd() << std::endl;
+	ssize_t sent = send(client.GetFd(), msg.c_str(), msg.size(), 0);
+	if (sent == -1) {
+		std::cerr << "Failed to send to client " << client.GetFd() 
+				 << " (" << client.GetNickname() << "): " << strerror(errno) << std::endl;
+	} else if (sent < static_cast<ssize_t>(msg.size())) {
+		std::cerr << "Partial send to client " << client.GetFd() 
+				 << ": " << sent << "/" << msg.size() << " bytes" << std::endl;
+	}
 }
 
 void	Server::send_to_all_in_chan(std::vector<std::pair<Client, std::string> > &Cmbs, std::string msg)
 {
-	size_t	i;
-
-	for (i = 0; i < Cmbs.size(); i++)
-		send_server_msg(Cmbs[i].first, msg);
+	std::vector<std::pair<Client, std::string> >::iterator it;
+	for (it = Cmbs.begin(); it != Cmbs.end(); ++it) {
+		send_server_msg(it->first, msg);
+	}
 }
 
 void	Server::pass(std::pair<std::string, std::vector<std::string> > args, Client &client)
@@ -480,65 +492,93 @@ void	Server::mode(std::pair<std::string, std::vector<std::string> > args, Client
 		return (send_server_msg(client, ERR_NOTREGISTERED(client.GetNickname())));
 	if (args.second.size() < 1)
 		return (send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "MODE")));
-	if (args.second.size() > 2)
+	if (args.second.size() > 3)
 		return (send_server_msg(client, ERR_TOOMANYPARAMS(client.GetNickname(), "MODE")));
-	std::string NameChannel = args.second[0];
-	std::string modeC = args.second[1];
-	std::vector<Channel>::iterator	Cit;
-	Cit = findchannel(this->Channels, NameChannel);
+
+	std::vector<Channel>::iterator Cit = findchannel(this->Channels, args.second[0]);
 	if (Cit == this->Channels.end())
-		return (send_server_msg(client, ERR_NOSUCHCHANNEL(client.GetNickname(), NameChannel)));
-	std::vector<std::pair<Client, std::string> > 			&Cmbs = Cit->GetMemberlist();
-	std::vector<std::pair<Client, std::string> >::iterator	Mit;
-	Mit = findclient(Cmbs, client);
-	int addMode = -1;
-	for (size_t j = 0; j < modeC.size(); ++j)
-	{
-		switch (modeC[j])
-		{
-		case '+':
-			addMode = 1;
-			break;
-		case '-':
-			addMode = 0;
-			break;
-		case 'i':
-			if (addMode == 1)
-			{
-				if (Mit->second != "@")
-					return (send_server_msg(client, ERR_CHANOPRIVSNEEDED(client.GetNickname(), Cit->GetName())));
-				Cit->Setifinvonly(true);
-				int k;
-				for (k = 0; k < Cmbs.size(); k++)
+		return (send_server_msg(client, ERR_NOSUCHCHANNEL(client.GetNickname(), args.second[0])));
+
+	if (args.second.size() == 1) {
+		// TODO: Implement showing current channel modes
+		return;
+	}
+
+	std::vector<std::pair<Client, std::string> > &Cmbs = Cit->GetMemberlist();
+	std::vector<std::pair<Client, std::string> >::iterator Mit = findclient(Cmbs, client);
+	
+	if (Mit == Cmbs.end())
+		return (send_server_msg(client, ERR_NOTONCHANNEL(client.GetNickname(), Cit->GetName())));
+	
+	if (Mit->second != "@")
+		return (send_server_msg(client, ERR_CHANOPRIVSNEEDED(client.GetNickname(), Cit->GetName())));
+
+	std::string modeString = args.second[1];
+	std::string parameter = args.second.size() > 2 ? args.second[2] : "";
+	bool adding = true;
+
+	for (size_t i = 0; i < modeString.length(); i++) {
+		char c = modeString[i];
+		
+		switch (c) {
+			case '+':
+				adding = true;
+				break;
+			case '-':
+				adding = false;
+				break;
+			case 'i':
+				Cit->Setifinvonly(adding);
+				send_to_all_in_chan(Cmbs, ":" + get_cli_source(client) + " MODE " + Cit->GetName() + 
+					" " + (adding ? "+" : "-") + "i\r\n");
+				break;
+			case 't':
+				Cit->SetCantopic(adding);
+				send_to_all_in_chan(Cmbs, ":" + get_cli_source(client) + " MODE " + Cit->GetName() + 
+					" " + (adding ? "+" : "-") + "t\r\n");
+				break;
+			case 'k':
+				Cit->SetKey(adding ? parameter : "");
+				send_to_all_in_chan(Cmbs, ":" + get_cli_source(client) + " MODE " + Cit->GetName() + 
+					" " + (adding ? "+" : "-") + "k " + parameter + "\r\n");
+				break;
+			case 'o':
 				{
-					if (Cmbs[k].second == "@")
-						send_server_msg(Cmbs[k].first, ":" + client.GetNickname() + " MODE " + Cit->GetName() + " +i\r\n");
+					if (parameter.empty()) {
+						send_server_msg(client, ERR_NEEDMOREPARAMS(client.GetNickname(), "MODE"));
+						break;
+					}
+					
+					std::vector<std::pair<Client, std::string> >::iterator target = std::find_if(
+						Cmbs.begin(), 
+						Cmbs.end(),
+						NicknameMatcher(parameter)
+					);
+
+					if (target != Cmbs.end()) {
+						if (!adding && target->first.GetNickname() == client.GetNickname()) {
+							send_server_msg(client, ERR_CHANOPRIVSNEEDED(client.GetNickname(), Cit->GetName()));
+							break;
+						}
+						
+						target->second = adding ? "@" : "+";
+						send_to_all_in_chan(Cmbs, ":" + get_cli_source(client) + " MODE " + Cit->GetName() + 
+							" " + (adding ? "+" : "-") + "o " + parameter + "\r\n");
+					} else {
+						send_server_msg(client, ERR_NOSUCHNICK(parameter, "MODE", "nick")); 
+					}
 				}
-				
-			}
-			else
-				Cit->Setifinvonly(false);
-			break;
-		case 't':
-			if (addMode == 1)
-			{
-				if (Mit->second != "@")
-					return (send_server_msg(client, ERR_CHANOPRIVSNEEDED(client.GetNickname(), Cit->GetName())));
-				Cit->SetCantopic(true);
-				int k;
-				for (k = 0; k < Cmbs.size(); k++)
-				{
-					if (Cmbs[k].second == "@" || Cmbs[k].second == "+")
-						send_server_msg(Cmbs[k].first, ":" + client.GetNickname() + " MODE " + Cit->GetName() + " +t\r\n");
-				}
-			}
-			else
-				Cit->SetCantopic(false);
-			break;
+				break;
+			case 'l':
+				Cit->SetLimit(adding ? std::stoi(parameter) : 0);
+				send_to_all_in_chan(Cmbs, ":" + get_cli_source(client) + " MODE " + Cit->GetName() + 
+					" " + (adding ? "+" : "-") + "l " + parameter + "\r\n");
+				break;
+			default:
+				send_server_msg(client, ERR_UNKNOWNMODE(client.GetNickname(), std::string(1, c)));
+				break;
 		}
 	}
-	
-	
 }
 
 void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Client &client)
@@ -565,8 +605,8 @@ void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Cl
 		privmsg(args, client);
 	else if (args.first == "TOPIC" || args.first == "topic")
 		topic(args, client);
-	// else if (args.first =="MODE" || args.first == "mode")
-	// 	mode(args, client);
+	else if (args.first =="MODE" || args.first == "mode")
+		mode(args, client);
 	// else
 	// 	send_server_msg(client, ERR_UNKNOWNCOMMAND(client.GetNickname(), args.first));
 	if (client.GetifReg() == false && client.GetIfPassCorr() == true && client.GetNickname() != "*" && client.GetUsername() != "*" && client.GetRealname() != "*")
