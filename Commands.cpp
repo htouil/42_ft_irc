@@ -6,7 +6,7 @@
 /*   By: amirabendhia <amirabendhia@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/31 01:33:08 by amirabendhi      ###   ########.fr       */
+/*   Updated: 2024/12/31 02:24:45 by amirabendhi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -580,7 +580,9 @@ void	Server::mode(std::pair<std::string, std::vector<std::string> > args, Client
 		}
 		if (Cit->GetLimit() > 0) {
 			modes += "l";
-			modeParams += " " + std::to_string(Cit->GetLimit());
+			std::ostringstream ss;
+			ss << " " << Cit->GetLimit();
+			modeParams += ss.str();
 		}
 
 		// Send RPL_CHANNELMODEIS (324)
