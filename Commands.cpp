@@ -6,7 +6,7 @@
 /*   By: amirabendhia <amirabendhia@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/31 01:20:32 by amirabendhi      ###   ########.fr       */
+/*   Updated: 2024/12/31 01:33:08 by amirabendhi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -565,7 +565,30 @@ void	Server::mode(std::pair<std::string, std::vector<std::string> > args, Client
 		return (send_server_msg(client, ERR_NOSUCHCHANNEL(client.GetNickname(), args.second[0])));
 
 	if (args.second.size() == 1) {
-		// TODO: Implement showing current channel modes
+		std::string modes = "+";
+		std::string modeParams = "";
+		std::vector<std::pair<Client, std::string> > &Cmbs = Cit->GetMemberlist();
+		
+		// Build mode string
+		if (Cit->GetCantopic())
+			modes += "t";
+		if (Cit->GetifInvonly())
+			modes += "i";
+		if (!Cit->GetKey().empty()) {
+			modes += "k";
+			modeParams += " " + Cit->GetKey();
+		}
+		if (Cit->GetLimit() > 0) {
+			modes += "l";
+			modeParams += " " + std::to_string(Cit->GetLimit());
+		}
+
+		// Send RPL_CHANNELMODEIS (324)
+		send_to_all_in_chan(Cmbs, ":ircserv 324 " + client.GetNickname() + " " + Cit->GetName() + " " + modes + modeParams + "\r\n");
+		
+		// Optionally send RPL_CREATIONTIME (329) if you track channel creation time
+		// send_server_msg(client, "329 " + client.GetNickname() + " " + Cit->GetName() + " " + creation_timestamp + "\r\n");
+		
 		return;
 	}
 
