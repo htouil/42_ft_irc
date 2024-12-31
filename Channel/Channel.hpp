@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amirabendhia <amirabendhia@student.42.f    +#+  +:+       +#+        */
+/*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/30 16:46:37 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/31 03:01:09 by amirabendhi      ###   ########.fr       */
+/*   Updated: 2024/12/31 04:42:45 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,10 +30,10 @@ class Channel
 		bool											Can_topic;
 		std::vector<std::pair<Client, std::string> >	Members;
 		std::vector<std::string>						ChanMods;
-		std::vector<Client>                           invited_users;
+		std::vector<Client>								invited_users;
 
 		// C++98 compatible functor for finding invited users
-		struct InvitedUserFinder {
+		struct InvitedUserFinder { // verify this
 			const std::string& nickname;
 			InvitedUserFinder(const std::string& nick) : nickname(nick) {}
 			bool operator()(const Client& client) const {

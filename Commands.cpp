@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amirabendhia <amirabendhia@student.42.f    +#+  +:+       +#+        */
+/*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/31 02:58:52 by amirabendhi      ###   ########.fr       */
+/*   Updated: 2024/12/31 04:41:52 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./Server/Server.hpp"
 
-class NicknameMatcher {
+class NicknameMatcher { // verify this
 	std::string nickname_;
 public:
 	NicknameMatcher(const std::string& nick) : nickname_(nick) {}
@@ -486,8 +486,6 @@ void	Server::kick(std::pair<std::string, std::vector<std::string> > args, Client
 	std::vector<Channel>::iterator	Cit = findchannel(this->Channels, args.second[0]);
 	if (Cit == this->Channels.end())
 		return (send_server_msg(client, ERR_NOSUCHCHANNEL(client.GetNickname(), args.second[0])));
-
-	// Check if kicker is in channel and is an operator
 	std::vector<std::pair<Client, std::string> > &Cmbs = Cit->GetMemberlist();
 	std::vector<std::pair<Client, std::string> >::iterator kickerIt = findclient(Cmbs, client);
 	
@@ -496,51 +494,45 @@ void	Server::kick(std::pair<std::string, std::vector<std::string> > args, Client
 	if (kickerIt->second != "@")
 		return (send_server_msg(client, ERR_CHANOPRIVSNEEDED(client.GetNickname(), Cit->GetName())));
 
-	// Process kick targets
 	std::vector<std::string> targets = split_input(args.second[1], ",");
-	std::string kickMsg = args.second.size() > 2 ? args.second[2] : "No reason given";
+	std::string kickMsg = args.second.size() > 2 ? args.second[2] : ":No reason given";
 	
-	// Process kick message if it exists
-	if (args.second.size() > 2) {
-		if (kickMsg[0] == ':' && kickMsg[1] == ':')
-			kickMsg = kickMsg.substr(1);
+	if (kickMsg[0] == ':' && kickMsg[1] == ':')
 		kickMsg = kickMsg.substr(1);
-		
-		size_t pos = kickMsg.find_last_not_of(" ");
-		if (pos != std::string::npos)
-			kickMsg.erase(pos + 1);
-	}
-
+	kickMsg = kickMsg.substr(1);
+	
+	size_t pos = kickMsg.find_last_not_of(" ");
+	if (pos != std::string::npos)
+		kickMsg.erase(pos + 1);
 	for (size_t i = 0; i < targets.size(); i++) {
-		// Find target user in channel
 		std::vector<std::pair<Client, std::string> >::iterator targetIt = std::find_if(
 			Cmbs.begin(),
 			Cmbs.end(),
 			NicknameMatcher(targets[i])
 		);
-
-		if (targetIt == Cmbs.end()) {
+		if (targetIt == Cmbs.end())
+		{
 			send_server_msg(client, ERR_USERNOTINCHANNEL(client.GetNickname(), targets[i], Cit->GetName()));
 			continue;
 		}
-
-		// Cannot kick another operator
-		if (targetIt->second == "@" && targetIt != kickerIt) {
-			send_server_msg(client, ERR_USERISOPERATOR(client.GetNickname(), Cit->GetName()));
+		if (targetIt->second == "@")
+		{
+			send_server_msg(client, ERR_USERISOPERATOR(client.GetNickname(), targets[i], Cit->GetName()));
 			continue;
 		}
-
-		// Send kick message to all channel members
+		if (targetIt->first.GetFd() != kickerIt->first.GetFd())
+		{
+			send_server_msg(client, ERR_CANTKICKYOURSELF(client.GetNickname(), targets[i], Cit->GetName()));
+			continue;
+		}
 		send_to_all_in_chan(Cmbs, ":" + get_cli_source(client) + " KICK " + Cit->GetName() + " " 
 							+ targetIt->first.GetNickname() + " :" + kickMsg + "\r\n");
-
-		// Remove user from channel
 		Cmbs.erase(targetIt);
 
-		// If channel is empty after kick, remove the channel
-		if (Cmbs.empty()) {
+		if (Cmbs.empty())
+		{
 			this->Channels.erase(Cit);
-			break;
+			continue ;
 		}
 	}
 }
@@ -553,57 +545,59 @@ void	Server::part(std::pair<std::string, std::vector<std::string> > args, Client
 		return (send_server_msg(client, ERR_NEEDMOREPARAMS("PART")));
 	if (args.second.size() > 2)
 		return (send_server_msg(client, ERR_TOOMANYPARAMS("PART")));
-
-	std::vector<std::string> channels = split_input(args.second[0], ",");
-	std::string partMsg = args.second.size() > 1 ? args.second[1] : "Leaving";
+	std::string message = args.second.size() == 2 ? args.second[1] : ":Leaving";
 	
-	// Process part message if it exists
-	if (args.second.size() > 1) {
-		if (partMsg[0] == ':' && partMsg[1] == ':')
-			partMsg = partMsg.substr(1);
-		partMsg = partMsg.substr(1);
-		
-		size_t pos = partMsg.find_last_not_of(" ");
-		if (pos != std::string::npos)
-			partMsg.erase(pos + 1);
-	}
+	if (message[0] == ':' && message[1] == ':')
+		message = message.substr(1);
+	message = message.substr(1);
+	
+	size_t pos = message.find_last_not_of(" ");
+	if (pos != std::string::npos)
+		message.erase(pos + 1);
+	std::vector<std::string> targets = split_input(args.second[0], ",");
+	size_t	x;
 
-	for (size_t i = 0; i < channels.size(); i++) {
-		std::vector<Channel>::iterator Cit = findchannel(this->Channels, channels[i]);
+	x = std::count(args.second[0].begin(), args.second[0].end(), ',');
+	if (targets.size() != x + 1)
+		return (send_server_msg(client, ERR_NEEDMOREPARAMS("PART")));
+	for (size_t i = 0; i < targets.size(); i++)
+	{
+		std::vector<Channel>::iterator Cit = findchannel(this->Channels, targets[i]);
 		
-		if (Cit == this->Channels.end()) {
-			send_server_msg(client, ERR_NOSUCHCHANNEL(client.GetNickname(), channels[i]));
-			continue;
+		if (Cit == this->Channels.end())
+		{
+			send_server_msg(client, ERR_NOSUCHCHANNEL(client.GetNickname(), targets[i]));
+			continue ;
 		}
-
 		std::vector<std::pair<Client, std::string> > &Cmbs = Cit->GetMemberlist();
 		std::vector<std::pair<Client, std::string> >::iterator Mit = findclient(Cmbs, client);
 
-		if (Mit == Cmbs.end()) {
-			send_server_msg(client, ERR_NOTONCHANNEL(client.GetNickname(), channels[i]));
-			continue;
+		if (Mit == Cmbs.end())
+		{
+			send_server_msg(client, ERR_NOTONCHANNEL(client.GetNickname(), targets[i]));
+			continue ;
 		}
-
-		// Send part message to all members in the channel
-		send_to_all_in_chan(Cmbs, ":" + get_cli_source(client) + " PART " + channels[i] + " :" + partMsg + "\r\n");
-
-		// If the leaving user was an operator and there are other users
+		send_to_all_in_chan(Cmbs, ":" + get_cli_source(client) + " PART " + targets[i] + " :" + message + "\r\n");
 		if (Mit->second == "@" && Cmbs.size() >= 2) {
-			// Find next user to promote to operator
 			std::vector<std::pair<Client, std::string> >::iterator nextOp = comparesymbol(Cmbs, "+");
+
 			if (nextOp != Cmbs.end()) {
-				nextOp->second = "@";  // Make them operator
-				send_to_all_in_chan(Cmbs, ":ircserv MODE " + channels[i] + " +o " + nextOp->first.GetNickname() + "\r\n");
+				nextOp->second = "@";                                     
+				size_t	i;
+
+				for (i = 0; i < Cmbs.size(); i++)
+				{
+					if (client.GetFd() == Cmbs[i].first.GetFd())
+						continue ;
+					send_server_msg(Cmbs[i].first, ":ircserv MODE " + targets[i] + " +o " + nextOp->first.GetNickname() + "\r\n");
+				}
 			}
 		}
-
-		// Remove the user from the channel
 		Cmbs.erase(Mit);
-
-		// If channel is empty after user leaves, remove the channel
-		if (Cmbs.empty()) {
+		if (Cmbs.empty()) 
+		{
 			this->Channels.erase(Cit);
-			break;
+			continue ;
 		}
 	}
 }
@@ -621,53 +615,48 @@ void	Server::mode(std::pair<std::string, std::vector<std::string> > args, Client
 	if (Cit == this->Channels.end())
 		return (send_server_msg(client, ERR_NOSUCHCHANNEL(client.GetNickname(), args.second[0])));
 
-	if (args.second.size() == 1) {
+	if (args.second.size() == 1)
+	{
 		std::string modes = "+";
 		std::string modeParams = "";
 		std::vector<std::pair<Client, std::string> > &Cmbs = Cit->GetMemberlist();
-		
-		// Build mode string
+
 		if (Cit->GetCantopic())
 			modes += "t";
 		if (Cit->GetifInvonly())
 			modes += "i";
-		if (!Cit->GetKey().empty()) {
+		if (!Cit->GetKey().empty())
+		{
 			modes += "k";
 			modeParams += " " + Cit->GetKey();
 		}
-		if (Cit->GetLimit() > 0) {
+		if (Cit->GetLimit() > 0)
+		{
 			modes += "l";
 			std::ostringstream ss;
 			ss << " " << Cit->GetLimit();
 			modeParams += ss.str();
 		}
-
-		// Send RPL_CHANNELMODEIS (324)
-		send_to_all_in_chan(Cmbs, ":ircserv 324 " + client.GetNickname() + " " + Cit->GetName() + " " + modes + modeParams + "\r\n");
-		
-		// Optionally send RPL_CREATIONTIME (329) if you track channel creation time
-		// send_server_msg(client, "329 " + client.GetNickname() + " " + Cit->GetName() + " " + creation_timestamp + "\r\n");
-		
+		send_to_all_in_chan(Cmbs, RPL_CHANNELMODEIS(client.GetNickname(), Cit->GetName(), modes + modeParams));
 		return;
 	}
-
 	std::vector<std::pair<Client, std::string> > &Cmbs = Cit->GetMemberlist();
 	std::vector<std::pair<Client, std::string> >::iterator Mit = findclient(Cmbs, client);
 	
 	if (Mit == Cmbs.end())
 		return (send_server_msg(client, ERR_NOTONCHANNEL(client.GetNickname(), Cit->GetName())));
-	
 	if (Mit->second != "@")
 		return (send_server_msg(client, ERR_CHANOPRIVSNEEDED(client.GetNickname(), Cit->GetName())));
-
 	std::string modeString = args.second[1];
 	std::string parameter = args.second.size() > 2 ? args.second[2] : "";
 	bool adding = true;
 
-	for (size_t i = 0; i < modeString.length(); i++) {
+	for (size_t i = 0; i < modeString.length(); i++)
+	{
 		char c = modeString[i];
 		
-		switch (c) {
+		switch (c)
+		{
 			case '+':
 				adding = true;
 				break;

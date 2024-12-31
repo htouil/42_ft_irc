@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amirabendhia <amirabendhia@student.42.f    +#+  +:+       +#+        */
+/*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/31 02:55:15 by amirabendhi      ###   ########.fr       */
+/*   Updated: 2024/12/31 04:32:07 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,9 @@
 # define ERR_NORECIPIENT(nickname) ("ircserv 411 " + nickname + " :No recipient given (PRIVMSG)\r\n")
 # define ERR_UNKNOWNMODE(nickname, mode) ("ircserv 472 " + nickname + " " + mode + " :is unknown mode char to me\r\n")
 # define ERR_USERNOTINCHANNEL(nickname, target, channel) (":ircserv 441 " + nickname + " " + target + " " + channel + " :They aren't on that channel\r\n")
-# define ERR_USERISOPERATOR(nickname, channel) (":ircserv 998 " + nickname + " " + channel + " :You're both operators\r\n")
+# define ERR_USERISOPERATOR(nickname, target, channel) (":ircserv 1002 " + nickname + " " + target + " " + channel + " :You're both operators\r\n")
+# define ERR_CANTKICKYOURSELF(nickname, target, channel) (":ircserv 1003 " + nickname + " " + target + " " + channel + " :You can't kick yourself\r\n")
+# define RPL_CHANNELMODEIS(nickname, channel, modes) (":ircserv 324 " + nickname + " " + channel + " " + modes + "\r\n")
 
 
 class Server
