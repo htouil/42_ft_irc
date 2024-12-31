@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
+/*   By: amirabendhia <amirabendhia@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/31 00:54:28 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/31 01:04:04 by amirabendhi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,15 +32,16 @@
 # include <iomanip>
 # include <algorithm>
 # include <cerrno>
+# include <cstdlib> 
 # include "../Client/Client.hpp"
 # include "../Channel/Channel.hpp"
 
 // Server replies:
 # define RPL_WELCOME(nickname, username, IPaddr) (":ircserv 001 " + nickname + " :Weclome to Discord Mdere7 server " + nickname + "!" + username + "@" + IPaddr + "\r\n")
-# define ERR_NEEDMOREPARAMS(command) (":ircserv 461 " + command + " :Not enough parameters.\r\n")
-# define ERR_TOOMANYPARAMS(command) (":ircserv 1001 " + command + " :Too many parameters.\r\n")
+# define ERR_NEEDMOREPARAMS(command) (":ircserv 461 " + std::string(command) + " :Not enough parameters.\r\n")
+# define ERR_TOOMANYPARAMS(command) (":ircserv 1001 " + std::string(command) + " :Too many parameters.\r\n")
 # define ERR_PASSWDMISMATCH(nickname) (":ircserv 464 " + nickname + " :Password incorrect.\r\n")
-# define ERR_NOTREGISTERED(command) (":ircserv 451 " + command + " :You have not registered.\r\n")
+# define ERR_NOTREGISTERED(command) (":ircserv 451 " + std::string(command) + " :You have not registered.\r\n")
 # define ERR_ALREADYREGISTERED(nickname) (":ircserv 462 " + nickname + " :You may not reregister.\r\n")
 # define ERR_NONICKNAMEGIVEN(nickname) (":ircserv 431 " + nickname + " :No nickname given.\r\n")
 # define ERR_NICKNAMEINUSE(oldnick, newnick) (":ircserv 433 " + oldnick + " " + newnick + " :Nickname already in use.\r\n")

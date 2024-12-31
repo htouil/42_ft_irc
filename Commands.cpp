@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
+/*   By: amirabendhia <amirabendhia@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/31 00:56:05 by htouil           ###   ########.fr       */
+/*   Updated: 2024/12/31 01:20:32 by amirabendhi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,8 +49,7 @@ void	Server::pass(std::pair<std::string, std::vector<std::string> > args, Client
 	if (client.GetIfPassCorr() == true)
 		return ;
 	if (args.second.size() < 1)
-		send_server_msg(client, ERR_NEEDMOREPARAMS("PASS"));
-		return;
+		return (send_server_msg(client, ERR_NEEDMOREPARAMS("PASS")));
 	if (args.second.size() > 1)
 		return (send_server_msg(client, ERR_TOOMANYPARAMS("PASS")));
 	if (args.second.front() != this->Spassword)
@@ -300,54 +299,37 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 
 				it = findclient(Cmbs, client);
 				if (it != Cmbs.end())
-					continue ;
+					continue;
 				if (this->Channels[j].GetifInvonly() == true)
 					return (send_server_msg(client, ERR_INVITEONLYCHAN(client.GetNickname(), chans[i])));
 				if (this->Channels[j].GetKey() != "" && (keys.empty() || (keys[i] != this->Channels[j].GetKey())))
 					return (send_server_msg(client, ERR_BADCHANNELKEY(client.GetNickname(), chans[i])));
 				if (Cmbs.size() == this->Channels[j].GetLimit())
 					return (send_server_msg(client, ERR_CHANNELISFULL(client.GetNickname(), chans[i])));
-				Cmbs.push_back(std::make_pair(client, "+"));
-				send_to_all_in_chan(Cmbs, ":" + get_cli_source(client) + " JOIN :" + chans[i] + "\r\n");
-				// if (this->Channels[j].GetTopic() != "")
-				send_server_msg(client, RPL_TOPIC(client.GetNickname(), this->Channels[j].GetName(), this->Channels[j].GetTopic()));
-				// for (k = 0; k < Cmbs.size(); k++)
-				// {
-				// 	// std::cout << "Client " << k << ": " << Cmbs[k].second << std::endl;
-				// 	if (Cmbs[k].second == "@")
-				// 		ops << "@" << Cmbs[k].first.GetNickname();
-				// 	else if (Cmbs[k].second == "+")
-				// 		ops << "+" << Cmbs[k].first.GetNickname();
-				// 	if (k < Cmbs.size() - 1)
-				// 		ops  << " ";
-				// }
-				// ops  << "\r\n";
-				std::ostringstream	ops;
-				std::ostringstream	usrs;
-				size_t				k;
 
-				for (k = 0; k < Cmbs.size(); k++)
-				{
-					if (Cmbs[k].second == "@")
-					{
-						ops << "@" << Cmbs[k].first.GetNickname();
-						if (k < Cmbs.size() - 1)
-							ops  << " ";
+				// Check if channel is empty and make first user operator
+				bool isFirstUser = Cmbs.empty();
+				std::string userStatus = isFirstUser ? "@" : "+";
+				
+				Cmbs.push_back(std::make_pair(client, userStatus));
+				send_to_all_in_chan(Cmbs, ":" + get_cli_source(client) + " JOIN :" + chans[i] + "\r\n");
+				send_server_msg(client, RPL_TOPIC(client.GetNickname(), this->Channels[j].GetName(), this->Channels[j].GetTopic()));
+
+				// Build names list
+				std::string namesList;
+				for (size_t k = 0; k < Cmbs.size(); k++) {
+					if (k > 0) {
+						namesList += " ";
 					}
-					else if (Cmbs[k].second == "+")
-					{
-						usrs << "+" << Cmbs[k].first.GetNickname();
-						if (k < Cmbs.size() - 1)
-							usrs  << " ";
-					}
+					namesList += Cmbs[k].second + Cmbs[k].first.GetNickname();
 				}
-				usrs << "\r\n";
-				for (k = 0; k < Cmbs.size(); k++)
-				{
-					send_server_msg(Cmbs[k].first, RPL_NAMREPLY(Cmbs[k].first.GetNickname(), (this->Channels[j].GetName()), ops.str() + usrs.str()));
-					send_server_msg(Cmbs[k].first, RPL_ENDOFNAMES(Cmbs[k].first.GetNickname(), this->Channels[j].GetName()));	
+				namesList += "\r\n";
+
+				// Send names list to all members
+				for (size_t k = 0; k < Cmbs.size(); k++) {
+					send_server_msg(Cmbs[k].first, RPL_NAMREPLY(Cmbs[k].first.GetNickname(), chans[i], namesList));
+					send_server_msg(Cmbs[k].first, RPL_ENDOFNAMES(Cmbs[k].first.GetNickname(), chans[i]));
 				}
-				// std::cout << "Channel size: " << Cmbs.size() << std::endl;
 				flag = true;
 				break ;
 			}
@@ -363,8 +345,8 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 		this->Channels.push_back(ch);
 		send_server_msg(client, ":" + get_cli_source(client) + " JOIN :" + chans[i] + "\r\n");
 		std::ostringstream	tmp;
-		tmp << Cmbs[0].second << client.GetNickname() << "\r\n";
-		send_server_msg(client, RPL_NAMREPLY(client.GetNickname(), this->Channels[j].GetName(), tmp.str()));
+		tmp << "@" << client.GetNickname() << "\r\n";
+		send_server_msg(client, RPL_NAMREPLY(client.GetNickname(), chans[i], tmp.str()));
 		send_server_msg(client, RPL_ENDOFNAMES(client.GetNickname(), chans[i]));
 	}
 	return ;
@@ -548,11 +530,14 @@ void	Server::part(std::pair<std::string, std::vector<std::string> > args, Client
 		// Send part message to all members in the channel
 		send_to_all_in_chan(Cmbs, ":" + get_cli_source(client) + " PART " + channels[i] + " :" + partMsg + "\r\n");
 
-		// If the leaving user was an operator, promote another user if possible
-		if (Mit->second == "@" && Cmbs.size() >= 2 && std::count_if(Cmbs.begin(), Cmbs.end(), IsSymbol("@")) == 1) {
+		// If the leaving user was an operator and there are other users
+		if (Mit->second == "@" && Cmbs.size() >= 2) {
+			// Find next user to promote to operator
 			std::vector<std::pair<Client, std::string> >::iterator nextOp = comparesymbol(Cmbs, "+");
-			if (nextOp != Cmbs.end())
-				send_server_msg(nextOp->first, ":ircserv MODE " + channels[i] + " +o " + nextOp->first.GetNickname() + "\r\n");
+			if (nextOp != Cmbs.end()) {
+				nextOp->second = "@";  // Make them operator
+				send_to_all_in_chan(Cmbs, ":ircserv MODE " + channels[i] + " +o " + nextOp->first.GetNickname() + "\r\n");
+			}
 		}
 
 		// Remove the user from the channel
@@ -561,7 +546,7 @@ void	Server::part(std::pair<std::string, std::vector<std::string> > args, Client
 		// If channel is empty after user leaves, remove the channel
 		if (Cmbs.empty()) {
 			this->Channels.erase(Cit);
-			break;  // Break since we modified the Channels vector
+			break;
 		}
 	}
 }
@@ -687,6 +672,8 @@ void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Cl
 		topic(args, client);
 	else if (args.first =="MODE" || args.first == "mode")
 		mode(args, client);
+	else if (args.first == "PART" || args.first == "part")
+		part(args, client);
 	// else
 	// 	send_server_msg(client, ERR_UNKNOWNCOMMAND(client.GetNickname(), args.first));
 	if (client.GetifReg() == false && client.GetIfPassCorr() == true && client.GetNickname() != "*" && client.GetUsername() != "*" && client.GetRealname() != "*")
