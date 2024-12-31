@@ -6,7 +6,7 @@
 /*   By: amirabendhia <amirabendhia@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/31 01:04:04 by amirabendhi      ###   ########.fr       */
+/*   Updated: 2024/12/31 02:55:15 by amirabendhi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,8 +62,8 @@
 # define ERR_NOTEXTTOSEND(nickname) ("ircserv 412 " + nickname + " :No text to send\r\n")
 # define ERR_NORECIPIENT(nickname) ("ircserv 411 " + nickname + " :No recipient given (PRIVMSG)\r\n")
 # define ERR_UNKNOWNMODE(nickname, mode) ("ircserv 472 " + nickname + " " + mode + " :is unknown mode char to me\r\n")
-
-
+# define ERR_USERNOTINCHANNEL(nickname, target, channel) (":ircserv 441 " + nickname + " " + target + " " + channel + " :They aren't on that channel\r\n")
+# define ERR_USERISOPERATOR(nickname, channel) (":ircserv 998 " + nickname + " " + channel + " :You're both operators\r\n")
 
 
 class Server
@@ -105,6 +105,7 @@ class Server
 		void		commands(std::pair<std::string, std::vector<std::string> > args, Client &client);
 		void		send_server_msg(Client &client, std::string err_msg);
 		void		send_to_all_in_chan(std::vector<std::pair<Client, std::string> > &Cmbs, std::string msg);
+		void		invite(std::pair<std::string, std::vector<std::string> > args, Client &client);
 };
 
 std::vector<std::string>								split_input(std::string buffer, std::string delimiter);

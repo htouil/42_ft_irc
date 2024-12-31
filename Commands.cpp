@@ -6,7 +6,7 @@
 /*   By: amirabendhia <amirabendhia@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/31 02:24:45 by amirabendhi      ###   ########.fr       */
+/*   Updated: 2024/12/31 02:58:52 by amirabendhi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -300,8 +300,12 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 				it = findclient(Cmbs, client);
 				if (it != Cmbs.end())
 					continue;
-				if (this->Channels[j].GetifInvonly() == true)
-					return (send_server_msg(client, ERR_INVITEONLYCHAN(client.GetNickname(), chans[i])));
+				if (this->Channels[j].GetifInvonly() == true) {
+					// Check if user is invited before rejecting
+					if (!this->Channels[j].IsInvited(client)) {
+						return (send_server_msg(client, ERR_INVITEONLYCHAN(client.GetNickname(), chans[i])));
+					}
+				}
 				if (this->Channels[j].GetKey() != "" && (keys.empty() || (keys[i] != this->Channels[j].GetKey())))
 					return (send_server_msg(client, ERR_BADCHANNELKEY(client.GetNickname(), chans[i])));
 				if (Cmbs.size() == this->Channels[j].GetLimit())
@@ -478,14 +482,67 @@ void	Server::kick(std::pair<std::string, std::vector<std::string> > args, Client
 		return (send_server_msg(client, ERR_NEEDMOREPARAMS("KICK")));
 	if (args.second.size() > 3)
 		return (send_server_msg(client, ERR_TOOMANYPARAMS("KICK")));
-	std::vector<Channel>::iterator	Cit;
-
-	Cit = findchannel(this->Channels, args.second[0]);
+	
+	std::vector<Channel>::iterator	Cit = findchannel(this->Channels, args.second[0]);
 	if (Cit == this->Channels.end())
 		return (send_server_msg(client, ERR_NOSUCHCHANNEL(client.GetNickname(), args.second[0])));
-	std::vector<std::string>	targets;
 
-	targets = split_input(args.second[1], ",");
+	// Check if kicker is in channel and is an operator
+	std::vector<std::pair<Client, std::string> > &Cmbs = Cit->GetMemberlist();
+	std::vector<std::pair<Client, std::string> >::iterator kickerIt = findclient(Cmbs, client);
+	
+	if (kickerIt == Cmbs.end())
+		return (send_server_msg(client, ERR_NOTONCHANNEL(client.GetNickname(), Cit->GetName())));
+	if (kickerIt->second != "@")
+		return (send_server_msg(client, ERR_CHANOPRIVSNEEDED(client.GetNickname(), Cit->GetName())));
+
+	// Process kick targets
+	std::vector<std::string> targets = split_input(args.second[1], ",");
+	std::string kickMsg = args.second.size() > 2 ? args.second[2] : "No reason given";
+	
+	// Process kick message if it exists
+	if (args.second.size() > 2) {
+		if (kickMsg[0] == ':' && kickMsg[1] == ':')
+			kickMsg = kickMsg.substr(1);
+		kickMsg = kickMsg.substr(1);
+		
+		size_t pos = kickMsg.find_last_not_of(" ");
+		if (pos != std::string::npos)
+			kickMsg.erase(pos + 1);
+	}
+
+	for (size_t i = 0; i < targets.size(); i++) {
+		// Find target user in channel
+		std::vector<std::pair<Client, std::string> >::iterator targetIt = std::find_if(
+			Cmbs.begin(),
+			Cmbs.end(),
+			NicknameMatcher(targets[i])
+		);
+
+		if (targetIt == Cmbs.end()) {
+			send_server_msg(client, ERR_USERNOTINCHANNEL(client.GetNickname(), targets[i], Cit->GetName()));
+			continue;
+		}
+
+		// Cannot kick another operator
+		if (targetIt->second == "@" && targetIt != kickerIt) {
+			send_server_msg(client, ERR_USERISOPERATOR(client.GetNickname(), Cit->GetName()));
+			continue;
+		}
+
+		// Send kick message to all channel members
+		send_to_all_in_chan(Cmbs, ":" + get_cli_source(client) + " KICK " + Cit->GetName() + " " 
+							+ targetIt->first.GetNickname() + " :" + kickMsg + "\r\n");
+
+		// Remove user from channel
+		Cmbs.erase(targetIt);
+
+		// If channel is empty after kick, remove the channel
+		if (Cmbs.empty()) {
+			this->Channels.erase(Cit);
+			break;
+		}
+	}
 }
 
 void	Server::part(std::pair<std::string, std::vector<std::string> > args, Client &client)
@@ -651,9 +708,28 @@ void	Server::mode(std::pair<std::string, std::vector<std::string> > args, Client
 							break;
 						}
 						
+						// Set the new status
 						target->second = adding ? "@" : "+";
+						
+						// Send mode change message
 						send_to_all_in_chan(Cmbs, ":" + get_cli_source(client) + " MODE " + Cit->GetName() + 
 							" " + (adding ? "+" : "-") + "o " + parameter + "\r\n");
+
+						// Build and send updated names list
+						std::string namesList;
+						for (size_t k = 0; k < Cmbs.size(); k++) {
+							if (k > 0) {
+								namesList += " ";
+							}
+							namesList += Cmbs[k].second + Cmbs[k].first.GetNickname();
+						}
+						namesList += "\r\n";
+
+						// Send updated names list to all members
+						for (size_t k = 0; k < Cmbs.size(); k++) {
+							send_server_msg(Cmbs[k].first, RPL_NAMREPLY(Cmbs[k].first.GetNickname(), Cit->GetName(), namesList));
+							send_server_msg(Cmbs[k].first, RPL_ENDOFNAMES(Cmbs[k].first.GetNickname(), Cit->GetName()));
+						}
 					} else {
 						send_server_msg(client, ERR_NOSUCHNICK(parameter, "MODE", "nick")); 
 					}
@@ -669,6 +745,48 @@ void	Server::mode(std::pair<std::string, std::vector<std::string> > args, Client
 				break;
 		}
 	}
+}
+
+void	Server::invite(std::pair<std::string, std::vector<std::string> > args, Client &client)
+{
+	if (client.GetifReg() == false)
+		return (send_server_msg(client, ERR_NOTREGISTERED("INVITE")));
+	if (args.second.size() < 2)
+		return (send_server_msg(client, ERR_NEEDMOREPARAMS("INVITE")));
+	if (args.second.size() > 2)
+		return (send_server_msg(client, ERR_TOOMANYPARAMS("INVITE")));
+
+	// Find target user
+	int targetIndex = find_nickname(args.second[0], this->Clients);
+	if (targetIndex == -1)
+		return (send_server_msg(client, ERR_NOSUCHNICK(args.second[0], "INVITE", "nick")));
+
+	// Find channel
+	std::vector<Channel>::iterator Cit = findchannel(this->Channels, args.second[1]);
+	if (Cit == this->Channels.end())
+		return (send_server_msg(client, ERR_NOSUCHCHANNEL(client.GetNickname(), args.second[1])));
+
+	std::vector<std::pair<Client, std::string> > &Cmbs = Cit->GetMemberlist();
+	
+	// Check if inviter is in channel
+	std::vector<std::pair<Client, std::string> >::iterator inviterIt = findclient(Cmbs, client);
+	if (inviterIt == Cmbs.end())
+		return (send_server_msg(client, ERR_NOTONCHANNEL(client.GetNickname(), Cit->GetName())));
+
+	// Check if target is already in channel
+	std::vector<std::pair<Client, std::string> >::iterator targetIt = std::find_if(
+		Cmbs.begin(),
+		Cmbs.end(),
+		NicknameMatcher(args.second[0])
+	);
+	if (targetIt != Cmbs.end())
+		return (send_server_msg(client, ERR_USERNOTINCHANNEL(client.GetNickname(), args.second[0], Cit->GetName())));
+
+	// Add target to channel's invite list
+	Cit->AddInvited(this->Clients[targetIndex]);
+
+	// Send invite message to target
+	send_server_msg(this->Clients[targetIndex], ":" + get_cli_source(client) + " INVITE " + args.second[0] + " " + Cit->GetName() + "\r\n");
 }
 
 void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Client &client)
@@ -699,6 +817,10 @@ void	Server::commands(std::pair<std::string, std::vector<std::string> > args, Cl
 		mode(args, client);
 	else if (args.first == "PART" || args.first == "part")
 		part(args, client);
+	else if (args.first == "KICK" || args.first == "kick")
+		kick(args, client);
+	else if (args.first == "INVITE" || args.first == "invite")
+		invite(args, client);
 	// else
 	// 	send_server_msg(client, ERR_UNKNOWNCOMMAND(client.GetNickname(), args.first));
 	if (client.GetifReg() == false && client.GetIfPassCorr() == true && client.GetNickname() != "*" && client.GetUsername() != "*" && client.GetRealname() != "*")
