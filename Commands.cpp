@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2025/01/02 19:51:43 by htouil           ###   ########.fr       */
+/*   Updated: 2025/01/03 00:58:09 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,13 +60,29 @@ void	Server::nick(std::pair<std::string, std::vector<std::string> > args, Client
 	if (tmp[0] == '#' || tmp[0] == '&' || tmp[0] == ':' || std::isdigit(tmp[0]))
 		return (send_server_msg(client, ERR_ERRONEUSNICKNAME(client.GetNickname(), args.second.front())));
 	size_t	i;
+
 	for (i = 0; i < tmp.size(); i++)
 	{
 		if (tmp[i] == ' ' || (!std::isalpha(tmp[i]) && !std::isdigit(tmp[i]) && tmp[i] != '[' && tmp[i] != ']' && tmp[i] != '{' && tmp[i] != '}' && tmp[i] != '\\' && tmp[i] != '|' && (i > 0 && tmp[i] != ':')))
 			return (send_server_msg(client, ERR_ERRONEUSNICKNAME(client.GetNickname(), args.second.front())));
 	}
-	// if (client.GetifReg() == true) //should be put in the nick_update() function
-	// 	send_server_msg(client, ":" + client.GetNickname() + " NICK " + args.second.front());
+	if (client.GetifReg() == true)
+		send_server_msg(client, ":" + get_cli_source(client) + " NICK :" + args.second.front() + "\r\n");
+	for (i = 0; i < this->Channels.size(); i++)
+	{
+		std::vector<std::pair<Client, std::string> >				&Cmbs = this->Channels[i].GetMemberlist();
+		std::vector<std::pair<Client, std::string> >::iterator		it1 = findclient(Cmbs, client.GetNickname());
+
+		if (it1 != Cmbs.end())
+		{
+			for (size_t j = 0; j < Cmbs.size(); j++)
+			{
+				if (client.GetFd() == Cmbs[j].first.GetFd())
+						continue ;
+				send_server_msg(Cmbs[j].first, ":" + get_cli_source(client) + " NICK :" + args.second.front() + "\r\n");
+			}
+		}
+	}
 	client.SetNickname(args.second.front());
 }
 
@@ -189,15 +205,35 @@ void	Server::help(Client &client)
 	help.append("\n5. JOIN:\n");
 	help.append("  - Description: Joins a specified channel.\n");
 	help.append("  - Usage: JOIN <channel>\n");
-	help.append("\n6. PRIVMSG:\n");
+	help.append("\n6. PART:\n");
+	help.append("  - Description: Removes the client from the given channel(s).\n");
+	help.append("  - Usage: PART <channel>\n");
+	help.append("\n7. INVITE:\n");
+	help.append("  - Description: Invites a user to a channel.\n");
+	help.append("  - Usage: INVITE <nickname> <channel>\n");
+	help.append("\n8. PRIVMSG:\n");
 	help.append("  - Description: Sends a private message to a user or channel.\n");
 	help.append("  - Usage: PRIVMSG <recipient> <message>\n");
 	help.append("  - Note: Ensure the recipient (user or channel) is valid and connected.\n");
-	help.append("\n7. TOPIC:\n");
+	help.append("\n9. TOPIC:\n");
 	help.append("  - Description: Sets or retrieves the topic of a specified channel.\n");
-	help.append("  - Usage: TOPIC <channel> [<topic>]\n");
+	help.append("  - Usage: TOPIC <channel> <topic>\n");
 	help.append("  - Note: If the topic provided is empty, the channel's topic will be set to empty.\n");
-	help.append("\n8. HELP:\n");
+	help.append("\n10. KICK:\n");
+	help.append("  - Description: Kicks a user from a channel with an optional reason.\n");
+	help.append("  - Usage: KICK <channel> <user> [<reason>]\n");
+	help.append("  - Note: Only channel operators can kick users from a channel.\n");
+	help.append("\n11. MODE:\n");
+	help.append("  - Description: Used to set or remove options (or modes) from a given channel.\n");
+	help.append("  - Usage: MODE #<channel> <mode> <target>\n");
+	help.append("           MODE #<channel> <mode>\n");
+	help.append("  - Note : The modes can be edited using a '-' or a '+' followed by one of these letters: \"i, t, k, o, l\".\n");
+	help.append("           i: Invite-Only Mode.\n");
+	help.append("           t: Topic Protection.\n");
+	help.append("           k: Key/Password.\n");
+	help.append("           o: Operator Privileges.\n");
+	help.append("           t: User Limit.\n");
+	help.append("\n12. HELP:\n");
 	help.append("  - Description: Displays this help guide.\n");
 	help.append("  - Usage: HELP\n");
 	help.append("\n"); 
@@ -294,6 +330,26 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 				Cmbs.push_back(std::make_pair(client, "+"));
 				send_to_all_in_chan(Cmbs, ":" + get_cli_source(client) + " JOIN :" + chans[i] + "\r\n");
 				send_server_msg(client, RPL_TOPIC(client.GetNickname(), this->Channels[j].GetName(), this->Channels[j].GetTopic()));
+				// std::string modes = "+";
+				// std::string modeParams = "";
+
+				// if (this->Channels[j].GetCantopic())
+				// 	modes += "t";
+				// if (this->Channels[j].GetifInvonly())
+				// 	modes += "i";
+				// if (!this->Channels[j].GetKey().empty())
+				// {
+				// 	modes += "k";
+				// 	modeParams += " " + this->Channels[j].GetKey();
+				// }
+				// if (this->Channels[j].GetLimit() > 0)
+				// {
+				// 	modes += "l";
+				// 	std::ostringstream ss;
+				// 	ss << " " << this->Channels[j].GetLimit();
+				// 	modeParams += ss.str();
+				// }
+				// send_server_msg(client, RPL_CHANNELMODEIS(client.GetNickname(), chans[i], modes + modeParams));
 				std::ostringstream	ops;
 				std::ostringstream	usrs;
 				size_t				k;
@@ -333,6 +389,26 @@ void	Server::join(std::pair<std::string, std::vector<std::string> > args, Client
 		Cmbs.push_back(std::make_pair(client, "@"));
 		this->Channels.push_back(ch);
 		send_server_msg(client, ":" + get_cli_source(client) + " JOIN :" + chans[i] + "\r\n");
+		// std::string modes = "+";
+		// std::string modeParams = "";
+
+		// if (ch.GetCantopic())
+		// 	modes += "t";
+		// if (ch.GetifInvonly())
+		// 	modes += "i";
+		// if (!ch.GetKey().empty())
+		// {
+		// 	modes += "k";
+		// 	modeParams += " " + ch.GetKey();
+		// }
+		// if (ch.GetLimit() > 0)
+		// {
+		// 	modes += "l";
+		// 	std::ostringstream ss;
+		// 	ss << " " << ch.GetLimit();
+		// 	modeParams += ss.str();
+		// }
+		// send_server_msg(client, RPL_CHANNELMODEIS(client.GetNickname(), chans[i], modes + modeParams));
 		std::ostringstream	tmp;
 		tmp << "@" << client.GetNickname() << "\r\n";
 		send_server_msg(client, RPL_NAMREPLY(client.GetNickname(), chans[i], tmp.str()));
@@ -376,19 +452,19 @@ void	Server::privmsg(std::pair<std::string, std::vector<std::string> > args, Cli
 			continue ;
 		if (targets[i][0] == '#')
 		{
-			std::vector<Channel>::iterator	it = findchannel(this->Channels, targets[i]);
+			std::vector<Channel>::iterator	Cit = findchannel(this->Channels, targets[i]);
 
-			if (it == this->Channels.end())
+			if (Cit == this->Channels.end())
 				send_server_msg(client, ERR_NOSUCHCHANNEL(client.GetNickname(), args.second[0]));
 			else
 			{
-				std::vector<std::pair<Client, std::string> >	&Cmbs = it->GetMemberlist();
+				std::vector<std::pair<Client, std::string> >	&Cmbs = Cit->GetMemberlist();
 
 				for (size_t j = 0; j < Cmbs.size(); j++)
 				{
 					if (client.GetFd() == Cmbs[j].first.GetFd())
 						continue ;
-					send_server_msg(Cmbs[j].first, ":" + get_cli_source(client) + " PRIVMSG " + it->GetName() + " :" + message + "\r\n");
+					send_server_msg(Cmbs[j].first, ":" + get_cli_source(client) + " PRIVMSG " + Cit->GetName() + " :" + message + "\r\n");
 				}
 			}
 		}
@@ -429,7 +505,7 @@ void	Server::topic(std::pair<std::string, std::vector<std::string> > args, Clien
 	}
 	else
 	{
-		if (Cit->GetCantopic() == false && Mit->second != "@")
+		if (Cit->GetCantopic() == true && Mit->second != "@")
 			return (send_server_msg(client, ERR_CHANOPRIVSNEEDED(client.GetNickname(), Cit->GetName())));
 		std::string	&topic = args.second[1];
 
@@ -605,6 +681,7 @@ void	Server::mode(std::pair<std::string, std::vector<std::string> > args, Client
 			modeParams += ss.str();
 		}
 		send_to_all_in_chan(Cmbs, RPL_CHANNELMODEIS(client.GetNickname(), Cit->GetName(), modes + modeParams));
+		std::cout << "SALAM HONA" <<std::endl; //TODO check if /mode #channel message should be sent to all members.
 		return;
 	}
 	std::vector<std::pair<Client, std::string> > &Cmbs = Cit->GetMemberlist();
