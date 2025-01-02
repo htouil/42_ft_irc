@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amirabendhia <amirabendhia@student.42.f    +#+  +:+       +#+        */
+/*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 23:49:35 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/30 05:22:27 by amirabendhi      ###   ########.fr       */
+/*   Updated: 2025/01/02 01:58:05 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
-Client::Client() : Fd(-1), IPaddr(""), IfPassCorr(false), Nickname("*"), Username("*"), Realname("*"), Registered(false), Chanmod("")
+Client::Client() : Fd(-1), IPaddr(""), IfPassCorr(false), Nickname("*"), Username("*"), Realname("*"), Registered(false)
 {
 }
 
@@ -100,16 +100,6 @@ bool	Client::GetifReg()
 void	Client::SetifReg(bool reg)
 {
 	this->Registered = reg;
-}
-
-std::string	Client::GetChanmod()
-{
-	return (this->Chanmod);
-}
-
-void	Client::SetChanmod(std::string newMode)
-{
-	this->Chanmod = newMode;
 }
 
 std::vector<std::time_t>	&Client::GetCperT()

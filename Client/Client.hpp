@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amirabendhia <amirabendhia@student.42.f    +#+  +:+       +#+        */
+/*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:46:41 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/30 05:22:01 by amirabendhi      ###   ########.fr       */
+/*   Updated: 2025/01/02 01:57:39 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ class Client
 		std::string	Username;
 		std::string	Realname;
 		bool		Registered;
-		std::string	Chanmod;  // to be removed, maybe
 		std::vector<std::time_t>	CperT;
 
 	public:
@@ -52,8 +51,6 @@ class Client
 		void		SetIPaddr(std::string newIPaddr);
 		bool		GetifReg();
 		void		SetifReg(bool reg);
-		std::string	GetChanmod();
-		void		SetChanmod(std::string newMode);
 		std::vector<std::time_t>	&GetCperT();
 };
 

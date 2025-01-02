@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/30 16:46:37 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/31 04:42:45 by htouil           ###   ########.fr       */
+/*   Updated: 2025/01/02 01:39:10 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,25 +30,16 @@ class Channel
 		bool											Can_topic;
 		std::vector<std::pair<Client, std::string> >	Members;
 		std::vector<std::string>						ChanMods;
-		std::vector<Client>								invited_users;
-
-		// C++98 compatible functor for finding invited users
-		struct InvitedUserFinder { // verify this
-			const std::string& nickname;
-			InvitedUserFinder(const std::string& nick) : nickname(nick) {}
-			bool operator()(const Client& client) const {
-				return client.GetNickname() == nickname;
-			}
-		};
+		std::vector<Client>								Invited;
 
 	public:
 							Channel(std::string Name, std::string Key);
-			std::string		GetName();
-			void			SetName(std::string newName);
-			std::string		GetKey();
-			void			SetKey(std::string newKey);
-			std::string		GetTopic();
-			void			SetTopic(std::string newTopic);
+		std::string			GetName();
+		void				SetName(std::string newName);
+		std::string			GetKey();
+		void				SetKey(std::string newKey);
+		std::string			GetTopic();
+		void				SetTopic(std::string newTopic);
 		size_t				GetLimit();
 		void				SetLimit(size_t newLimit);
 		bool				GetifInvonly();
@@ -56,17 +47,7 @@ class Channel
 		bool				GetCantopic();
 		void				SetCantopic(bool iftopic);
 		std::vector<std::pair<Client, std::string> >	&GetMemberlist();
-
-		void AddInvited(const Client& client) {
-			invited_users.push_back(client);
-		}
-
-		bool IsInvited(const Client& client) const {
-			return std::find_if(invited_users.begin(), 
-							   invited_users.end(),
-							   InvitedUserFinder(client.GetNickname())) 
-				   != invited_users.end();
-		}
+		std::vector<Client>	&GetInvitedlist();
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 20:21:59 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/31 04:41:30 by htouil           ###   ########.fr       */
+/*   Updated: 2025/01/01 23:28:08 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ std::string	remove_crln(std::string msg)
 		return (msg.substr(0, pos));
 	return (msg);
 }
+
 
 int		Server::find_nickname(std::string to_find, std::vector<Client> list)
 {
@@ -109,13 +110,13 @@ std::vector<std::pair<Client, std::string> >::iterator	comparesymbol(std::vector
 	return (Cmbs.end());
 }
 
-std::vector<std::pair<Client, std::string> >::iterator	findclient(std::vector<std::pair<Client, std::string> > &Cmbs, Client target)
+std::vector<std::pair<Client, std::string> >::iterator	findclient(std::vector<std::pair<Client, std::string> > &Cmbs, std::string target)
 {
 	std::vector<std::pair<Client, std::string> >::iterator	it;
 
 	for (it = Cmbs.begin(); it != Cmbs.end(); ++it)
 	{
-		if (it->first.GetFd() == target.GetFd())
+		if (it->first.GetNickname() == target)
 			return (it);
 	}
 	return (Cmbs.end());

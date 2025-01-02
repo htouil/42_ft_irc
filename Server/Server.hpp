@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2024/12/31 04:32:07 by htouil           ###   ########.fr       */
+/*   Updated: 2025/01/02 01:47:45 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@
 # define ERR_USERNOTINCHANNEL(nickname, target, channel) (":ircserv 441 " + nickname + " " + target + " " + channel + " :They aren't on that channel\r\n")
 # define ERR_USERISOPERATOR(nickname, target, channel) (":ircserv 1002 " + nickname + " " + target + " " + channel + " :You're both operators\r\n")
 # define ERR_CANTKICKYOURSELF(nickname, target, channel) (":ircserv 1003 " + nickname + " " + target + " " + channel + " :You can't kick yourself\r\n")
+# define ERR_CANTDEMOTEYOURSELF(nickname, target, channel) (":ircserv 1004 " + nickname + " " + target + " " + channel + " :You can't demote yourself from operator of the channel\r\n")
 # define RPL_CHANNELMODEIS(nickname, channel, modes) (":ircserv 324 " + nickname + " " + channel + " " + modes + "\r\n")
 
 
@@ -115,7 +116,7 @@ std::string												remove_crln(std::string msg);
 std::string												display_current_time();
 std::string												get_cli_source(Client cli);
 std::vector<std::pair<Client, std::string> >::iterator	comparesymbol(std::vector<std::pair<Client, std::string> > &Cmbs, std::string symbol);
-std::vector<std::pair<Client, std::string> >::iterator	findclient(std::vector<std::pair<Client, std::string> > &Cmbs, Client target);
+std::vector<std::pair<Client, std::string> >::iterator	findclient(std::vector<std::pair<Client, std::string> > &Cmbs, std::string target);
 std::vector<Channel>::iterator							findchannel(std::vector<Channel> &Chans, std::string target);
 
 #endif
