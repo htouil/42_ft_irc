@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 00:02:13 by htouil            #+#    #+#             */
-/*   Updated: 2025/01/02 01:52:41 by htouil           ###   ########.fr       */
+/*   Updated: 2025/01/02 19:51:43 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ void	Server::send_server_msg(Client &client, std::string msg)
 void	Server::send_to_all_in_chan(std::vector<std::pair<Client, std::string> > &Cmbs, std::string msg)
 {
 	std::vector<std::pair<Client, std::string> >::iterator it;
+
 	for (it = Cmbs.begin(); it != Cmbs.end(); ++it)
 		send_server_msg(it->first, msg);
 }
@@ -93,9 +94,8 @@ void	Server::user(std::pair<std::string, std::vector<std::string> > args, Client
 		if (!std::isalpha(tmp[i]) && tmp[i] != ' ') 
 			return (send_server_msg(client, ERR_NEEDMOREPARAMS("USER")));
 	}
-	size_t pos;
+	size_t pos = args.second[3].find_last_not_of(" ");
 
-	pos = args.second[3].find_last_not_of(" ");
 	if (pos != std::string::npos)
 		args.second[3].erase(pos + 1);
 	client.SetRealname(args.second[3].substr(1));
@@ -119,9 +119,8 @@ void	Server::quit(std::pair<std::string, std::vector<std::string> > args, Client
 		return (send_server_msg(client, ERR_TOOMANYPARAMS("QUIT")));
 	size_t	i;
 	std::string	&reason = args.second[0];
-	size_t pos;
+	size_t pos = args.second[0].find_last_not_of(" ");
 
-	pos = args.second[0].find_last_not_of(" ");
 	if (pos != std::string::npos)
 		args.second[0].erase(pos + 1);
 	if (reason[0] == ':' && reason[1] == ':')
@@ -350,9 +349,8 @@ void	Server::privmsg(std::pair<std::string, std::vector<std::string> > args, Cli
 	if (args.second.size() > 2)
 		return (send_server_msg(client, ERR_TOOMANYPARAMS("PRIVMSG")));
 	std::string	&message = args.second[1];
-	size_t posa;
+	size_t posa = message.find_last_not_of(" ");
 
-	posa = message.find_last_not_of(" ");
 	if (posa != std::string::npos)
 		message.erase(posa + 1);
 	if (message[0] == ':' && message[1] == ':')
@@ -360,9 +358,8 @@ void	Server::privmsg(std::pair<std::string, std::vector<std::string> > args, Cli
 	message = message.substr(1);
 	if (message.empty())
 		return (send_server_msg(client, ERR_NOTEXTTOSEND(client.GetNickname())));
-	std::vector<std::string>	targets;
+	std::vector<std::string>	targets = split_input(args.second[0], ",");
 
-	targets = split_input(args.second[0], ",");
 	// std::cout << "size: " << targets.size() << std::endl;
 	if (targets.empty())
 		return (send_server_msg(client, ERR_NORECIPIENT(client.GetNickname())));
@@ -400,7 +397,7 @@ void	Server::privmsg(std::pair<std::string, std::vector<std::string> > args, Cli
 			int	pos = this->find_nickname(targets[i], this->Clients);
 
 			if (pos == -1)
-				send_server_msg(client, ERR_NOSUCHNICK(targets[i], "PRIVMSG", "nick"));
+				send_server_msg(client, ERR_NOSUCHNICK(targets[i], "PRIVMSG"));
 			else
 				send_server_msg(this->Clients[pos], ":" + get_cli_source(client) + " PRIVMSG " + this->Clients[pos].GetNickname() + " :" + message + "\r\n");
 		}
@@ -687,7 +684,7 @@ void	Server::mode(std::pair<std::string, std::vector<std::string> > args, Client
 						}
 					}
 					else
-						send_server_msg(client, ERR_NOSUCHNICK(parameter, "MODE", "nick")); 
+						send_server_msg(client, ERR_NOSUCHNICK(parameter, "MODE")); 
 				}
 				break;
 			case 'l':
@@ -713,7 +710,7 @@ void	Server::invite(std::pair<std::string, std::vector<std::string> > args, Clie
 	// Find target user
 	int targetIndex = find_nickname(args.second[0], this->Clients);
 	if (targetIndex == -1)
-		return (send_server_msg(client, ERR_NOSUCHNICK(args.second[0], "INVITE", "nick")));
+		return (send_server_msg(client, ERR_NOSUCHNICK(args.second[0], "INVITE")));
 
 	// Find channel
 	std::vector<Channel>::iterator Cit = findchannel(this->Channels, args.second[1]);

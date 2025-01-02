@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2025/01/02 01:47:45 by htouil           ###   ########.fr       */
+/*   Updated: 2025/01/02 19:51:17 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@
 # define RPL_NAMREPLY(nickname, channel, member) (":ircserv 353 " + nickname + " = " + channel + " :" + member)
 # define RPL_ENDOFNAMES(nickname, channel) (":ircserv 366 " + nickname + " " + channel + " :End of /NAMES list.\r\n")
 # define ERR_UNKNOWNERROR(nickname, command) (":ircserv 400 " + nickname + " " + command + " :Command needs to end with a pair of CR('\\r') and NL('\\n').\r\n")
-# define ERR_NOSUCHNICK(nickname, command, type) (":ircserv 401 " + nickname + " " + command + " :No such " + type + "\r\n")
+# define ERR_NOSUCHNICK(nickname, command) (":ircserv 401 " + nickname + " " + command + " :No such nick\r\n")
 # define ERR_NOTONCHANNEL(nickname, channel) (":ircserv 442 " + nickname + " " + channel + " :You're not on that channel\r\n")
 # define ERR_NOSUCHCHANNEL(nickname, channel) (":ircserv 403 " + nickname + " " + channel + " :No such channel\r\n")
 # define ERR_CHANOPRIVSNEEDED(nickname, channel) (":ircserv 482 " + nickname + " " + channel + " :You're not a channel operator\r\n")
