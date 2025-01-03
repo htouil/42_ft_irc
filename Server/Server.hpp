@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/08 14:54:11 by htouil            #+#    #+#             */
-/*   Updated: 2025/01/02 19:51:17 by htouil           ###   ########.fr       */
+/*   Updated: 2025/01/03 20:32:19 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,9 @@
 # define ERR_CANTKICKYOURSELF(nickname, target, channel) (":ircserv 1003 " + nickname + " " + target + " " + channel + " :You can't kick yourself\r\n")
 # define ERR_CANTDEMOTEYOURSELF(nickname, target, channel) (":ircserv 1004 " + nickname + " " + target + " " + channel + " :You can't demote yourself from operator of the channel\r\n")
 # define RPL_CHANNELMODEIS(nickname, channel, modes) (":ircserv 324 " + nickname + " " + channel + " " + modes + "\r\n")
+# define ERR_USERONCHANNEL(nickname, target, channel) (":ircserv 443 " + nickname + " " + target + " " + channel + " :Is already on channel\r\n")
+# define RPL_INVITING(nickname, channel, target) (":ircserv 341 " + nickname + " " + channel + " " + target + "\r\n")
+# define ERR_UNKNOWNCOMMAND(nickname, command) (":ircserv 421 " + nickname + " " + command + " :Unknown command\r\n")
 
 
 class Server

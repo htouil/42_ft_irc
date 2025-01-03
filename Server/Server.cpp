@@ -6,7 +6,7 @@
 /*   By: htouil <htouil@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 23:45:57 by htouil            #+#    #+#             */
-/*   Updated: 2025/01/02 23:31:57 by htouil           ###   ########.fr       */
+/*   Updated: 2025/01/03 19:26:24 by htouil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -255,12 +255,12 @@ void	Server::Accept_New_Client()
 		std::cerr << "Failed to set the client socket to non-blocking." << std::endl;
 		return ;
 	}
-	// if (this->find_IP(inet_ntoa(newcliaddr.sin_addr), this->Clients) > -1)
-	// {
-	// 	if (send(clifd, "Too many connections from this IP address.\r\n", 44, 0) == -1)
-	// 		std::cerr << "Failed to send to client " << clifd << std::endl;
-	// 	close(clifd);
-	// }
+	if (this->find_IP(inet_ntoa(newcliaddr.sin_addr), this->Clients) > -1)
+	{
+		if (send(clifd, "ERROR :Closing Link: * (Too many connections from your IP)\r\n", 60, 0) == -1)
+			std::cerr << "Failed to send to client " << clifd << std::endl;
+		close(clifd);
+	}
 	else
 	{
 		std::string	welcome;
